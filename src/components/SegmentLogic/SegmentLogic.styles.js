@@ -21,28 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React from 'react'
-import PropTypes from 'prop-types'
-import { StyledItemWrapper } from './SegmentLogic.styles'
-import { FilterItem } from '../Filter/Filter'
+import styled from 'styled-components'
 
-export const SegmentLogic = ({ activeFilters, setActiveFilters }) => {
-  return (
-    <div>
-      {activeFilters.map((filter) => (
-        <StyledItemWrapper key={filter.id}>
-          <FilterItem
-            activeFilters={activeFilters}
-            filter={filter}
-            setActiveFilters={setActiveFilters}
-          />
-        </StyledItemWrapper>
-      ))}
-    </div>
-  )
-}
-
-SegmentLogic.propTypes = {
-  activeFilters: PropTypes.array,
-  setActiveFilters: PropTypes.func,
-}
+export const StyledItemWrapper = styled.div`
+  &:not(:first-child) {
+    border-top: 1px solid #e4e5e6;
+  }
+`

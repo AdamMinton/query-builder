@@ -21,28 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React from 'react'
-import PropTypes from 'prop-types'
-import { StyledItemWrapper } from './SegmentLogic.styles'
-import { FilterItem } from '../Filter/Filter'
+import styled from 'styled-components'
+import { Span } from '@looker/components'
 
-export const SegmentLogic = ({ activeFilters, setActiveFilters }) => {
-  return (
-    <div>
-      {activeFilters.map((filter) => (
-        <StyledItemWrapper key={filter.id}>
-          <FilterItem
-            activeFilters={activeFilters}
-            filter={filter}
-            setActiveFilters={setActiveFilters}
-          />
-        </StyledItemWrapper>
-      ))}
-    </div>
-  )
-}
+export const StyledItemInner = styled.div`
+  align-items: center;
+  display: flex;
+`
 
-SegmentLogic.propTypes = {
-  activeFilters: PropTypes.array,
-  setActiveFilters: PropTypes.func,
-}
+export const StyledLabel = styled(Span)`
+  font-size: 12px;
+  width: 200px;
+`

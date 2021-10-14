@@ -47,7 +47,10 @@ export const App = hot(() => {
           </StyledSidebar>
 
           <Space>
-            <SegmentLogic activeFilters={activeFilters} />
+            <SegmentLogic
+              activeFilters={activeFilters}
+              setActiveFilters={setActiveFilters}
+            />
           </Space>
           <StyledRightSidebar
             width="324px"
