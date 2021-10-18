@@ -30,9 +30,15 @@ import { Sidebar } from './components/Sidebar/Sidebar'
 import { StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import mockData from './mock-data.json'
+import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 
 export const App = hot(() => {
   const [activeFilters, setActiveFilters] = useState([])
+  const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
+
+  const handleBuildAudienceClick = () => {
+    setBuildAudienceOpen(!buildAudienceOpen)
+  }
 
   return (
     <ExtensionProvider>
@@ -59,8 +65,14 @@ export const App = hot(() => {
             p="large"
           >
             <Button>Check audiance size</Button>
+            <Button onClick={handleBuildAudienceClick}>Build audience</Button>
           </StyledRightSidebar>
         </Space>
+
+        <BuildAudienceDialog
+          isOpen={buildAudienceOpen}
+          setIsOpen={setBuildAudienceOpen}
+        />
       </ComponentsProvider>
     </ExtensionProvider>
   )
