@@ -22,15 +22,58 @@
  * THE SOFTWARE.
  */
 
-import React from 'react'
-import { HelloWorld } from './HelloWorld'
-import { ExtensionProvider } from '@looker/extension-sdk-react'
 import { hot } from 'react-hot-loader/root'
+import React, { useState } from 'react'
+import { ExtensionProvider } from '@looker/extension-sdk-react'
+import { ComponentsProvider, Space, Button } from '@looker/components'
+import { Sidebar } from './components/Sidebar/Sidebar'
+import { StyledRightSidebar, StyledSidebar } from './App.styles'
+import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
+import mockData from './mock-data.json'
+import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 
 export const App = hot(() => {
+  const [activeFilters, setActiveFilters] = useState([])
+  const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
+
+  const handleBuildAudienceClick = () => {
+    setBuildAudienceOpen(!buildAudienceOpen)
+  }
+
   return (
     <ExtensionProvider>
-      <HelloWorld />
+      <ComponentsProvider>
+        <Space height="100%" align="start">
+          <StyledSidebar width="324px" height="100%" align="start">
+            <Sidebar
+              filters={mockData.items}
+              activeFilters={activeFilters}
+              setActiveFilters={setActiveFilters}
+            />
+          </StyledSidebar>
+
+          <Space>
+            <SegmentLogic
+              activeFilters={activeFilters}
+              setActiveFilters={setActiveFilters}
+            />
+          </Space>
+          <StyledRightSidebar
+            width="324px"
+            height="100%"
+            align="start"
+            p="large"
+          >
+            <Button>Check audiance size</Button>
+            <Button onClick={handleBuildAudienceClick}>Build audience</Button>
+          </StyledRightSidebar>
+        </Space>
+
+        <BuildAudienceDialog
+          isOpen={buildAudienceOpen}
+          setIsOpen={setBuildAudienceOpen}
+        />
+      </ComponentsProvider>
     </ExtensionProvider>
   )
 })
