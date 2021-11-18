@@ -25,7 +25,8 @@
 import { hot } from 'react-hot-loader/root'
 import React, { useState } from 'react'
 import { ExtensionProvider } from '@looker/extension-sdk-react'
-import { ComponentsProvider, Space, Button } from '@looker/components'
+import { ComponentsProvider, Space, Button, Divider, FieldSelect } from '@looker/components'
+import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
@@ -33,6 +34,7 @@ import mockData from './mock-data.json'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 
 export const App = hot(() => {
+  const [topLevelChoices, setTopLevelChoices] = useState([])
   const [activeFilters, setActiveFilters] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
 
@@ -45,6 +47,21 @@ export const App = hot(() => {
       <ComponentsProvider>
         <Space height="100%" align="start">
           <StyledSidebar width="324px" height="100%" align="start">
+          {/* <ModelAndExploreMenu
+            topLevelChoices = {topLevelChoices}
+            setTopLevelChoice = {setTopLevelChoices}
+          /> */}
+          <FieldSelect
+            name="Cheeses"
+            label="Cheeses"
+            defaultValue="cheddar"
+            options={[
+              { value: 'cheddar', label: 'Cheddar' },
+              { value: 'gouda', label: 'Gouda' },
+              { value: 'swiss', label: 'Swiss' },
+            ]}
+          />
+            <Divider mt="u4" appearance="light" />
             <Sidebar
               filters={mockData.items}
               activeFilters={activeFilters}
@@ -64,8 +81,8 @@ export const App = hot(() => {
             align="start"
             p="large"
           >
-            <Button>Check audiance size</Button>
-            <Button onClick={handleBuildAudienceClick}>Build audience</Button>
+            <Button>Check Audience Size</Button>
+            <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
           </StyledRightSidebar>
         </Space>
 
