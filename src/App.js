@@ -23,9 +23,9 @@
  */
 
 import { hot } from 'react-hot-loader/root'
-import React, { useState } from 'react'
-import { ExtensionProvider } from '@looker/extension-sdk-react'
-import { ComponentsProvider, Space, Button, Divider, FieldSelect } from '@looker/components'
+import React, { useState, useEffect } from 'react'
+import { ComponentsProvider, Space, Button, Divider } from '@looker/components'
+import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { StyledRightSidebar, StyledSidebar } from './App.styles'
@@ -33,8 +33,15 @@ import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import mockData from './mock-data.json'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 
+let extensionSDK
+let coreSDK
+
 export const App = hot(() => {
-  const [topLevelChoices, setTopLevelChoices] = useState([])
+  
+  const [models, setModels] = useState([{value: '', name: 'Choose a Model'}])
+  const [explores, setExplores] = useState({ temp: [{value: '', name: 'Choose an Explore'}]})
+  const [activeModel, setActiveModel] = useState('')
+  const [activeExplore, setActiveExplore] = useState('')
   const [activeFilters, setActiveFilters] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
 
@@ -42,55 +49,67 @@ export const App = hot(() => {
     setBuildAudienceOpen(!buildAudienceOpen)
   }
 
+  useEffect(async () => {
+    const host = await connectExtensionHost()
+    console.log(host)
+    extensionSDK = host
+    coreSDK = LookerExtensionSDK.create40Client(extensionSDK)
+    const result = await coreSDK.all_lookml_models('name,explores')
+    let tempModels = []
+    let tempExplores = {}
+    result.value.forEach(model => {
+      if (model.explores.length) {
+        tempModels.push({ value: model.name, label: model.label})
+        tempExplores[model.name] = []
+        model.explores.forEach(explore => {
+          tempExplores[model.name].push({ value: explore.name, label: explore.label})
+        })
+      }
+    })
+    setModels(tempModels)
+    setExplores(tempExplores)
+  })
+
   return (
-    <ExtensionProvider>
-      <ComponentsProvider>
-        <Space height="100%" align="start">
-          <StyledSidebar width="324px" height="100%" align="start">
-          {/* <ModelAndExploreMenu
-            topLevelChoices = {topLevelChoices}
-            setTopLevelChoice = {setTopLevelChoices}
-          /> */}
-          <FieldSelect
-            name="Cheeses"
-            label="Cheeses"
-            defaultValue="cheddar"
-            options={[
-              { value: 'cheddar', label: 'Cheddar' },
-              { value: 'gouda', label: 'Gouda' },
-              { value: 'swiss', label: 'Swiss' },
-            ]}
-          />
-            <Divider mt="u4" appearance="light" />
-            <Sidebar
-              filters={mockData.items}
-              activeFilters={activeFilters}
-              setActiveFilters={setActiveFilters}
-            />
-          </StyledSidebar>
-
-          <Space>
-            <SegmentLogic
-              activeFilters={activeFilters}
-              setActiveFilters={setActiveFilters}
-            />
-          </Space>
-          <StyledRightSidebar
-            width="324px"
-            height="100%"
-            align="start"
-            p="large"
-          >
-            <Button>Check Audience Size</Button>
-            <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
-          </StyledRightSidebar>
-        </Space>
-
-        <BuildAudienceDialog
-          isOpen={buildAudienceOpen}
-          setIsOpen={setBuildAudienceOpen}
+    <ComponentsProvider>
+      <Space height="100%" align="start">
+        <StyledSidebar width="324px" height="100%" align="start">
+        <ModelAndExploreMenu
+          models = {models}
+          explores = {explores}
+          activeModel = {activeModel}
+          setActiveModel = {setActiveModel}
+          setActiveExplore = {setActiveExplore}
         />
-      </ComponentsProvider>
-    </ExtensionProvider>
+          <Divider mt="u4" appearance="light" />
+          <Sidebar
+            filters={mockData.items}
+            activeFilters={activeFilters}
+            setActiveFilters={setActiveFilters}
+          />
+        </StyledSidebar>
+
+        <Space>
+          <SegmentLogic
+            activeFilters={activeFilters}
+            setActiveFilters={setActiveFilters}
+          />
+        </Space>
+        <StyledRightSidebar
+          width="324px"
+          height="100%"
+          align="start"
+          p="large"
+        >
+          <Button>Check Audience Size</Button>
+          <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
+        </StyledRightSidebar>
+      </Space>
+
+      <BuildAudienceDialog
+        isOpen={buildAudienceOpen}
+        setIsOpen={setBuildAudienceOpen}
+      />
+    </ComponentsProvider>
   )
 })

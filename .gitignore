@@ -6,3 +6,4 @@ dist
 .env
 .eslintcache
 .idea
+yarn.lock
