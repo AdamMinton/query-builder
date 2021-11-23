@@ -40,6 +40,7 @@ export const App = hot(() => {
   
   const [models, setModels] = useState([{value: '', name: 'Choose a Model'}])
   const [explores, setExplores] = useState({ temp: [{value: '', name: 'Choose an Explore'}]})
+  const [filters, setFilters] = useState({})
   const [activeModel, setActiveModel] = useState('')
   const [activeExplore, setActiveExplore] = useState('')
   const [activeFilters, setActiveFilters] = useState([])
@@ -47,6 +48,37 @@ export const App = hot(() => {
 
   const handleBuildAudienceClick = () => {
     setBuildAudienceOpen(!buildAudienceOpen)
+  }
+
+  const buildFilterMenu = async () => {
+    console.log('building-appjs')
+    console.log(coreSDK)
+    const result = await coreSDK.lookml_model_explore({activeModel},{activeExplore})
+    const fields = result.fields
+    let tempObj = {}
+    result.scopes.forEach(scope => {
+      tempObj[scope] = { 
+        id: scope,
+        label: '',
+        items: []
+      }
+    })
+    for (let categories in fields) {
+      fields[categories].forEach(field => {
+        tempObj[field.scope].label = field.view_label
+        tempObj[field.scope].items.push({
+          id: field.name,
+          label: field.label_short,
+          type: field.type
+        })
+      })
+    }
+    let filterObj = { items: [] }
+    for (let scope in tempObj) {
+      filterObj.items.push(tempObj[scope])
+    }
+    setFilters(filterObj)
+    console.log(filterObj)
   }
 
   useEffect(async () => {
@@ -68,8 +100,9 @@ export const App = hot(() => {
     })
     setModels(tempModels)
     setExplores(tempExplores)
+    console.log(coreSDK)
   })
-
+  
   return (
     <ComponentsProvider>
       <Space height="100%" align="start">
@@ -78,8 +111,10 @@ export const App = hot(() => {
           models = {models}
           explores = {explores}
           activeModel = {activeModel}
+          activeExplore = {activeExplore}
           setActiveModel = {setActiveModel}
           setActiveExplore = {setActiveExplore}
+          buildFilterMenu = {buildFilterMenu}
         />
           <Divider mt="u4" appearance="light" />
           <Sidebar
