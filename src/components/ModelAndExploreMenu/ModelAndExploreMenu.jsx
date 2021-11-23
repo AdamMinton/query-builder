@@ -3,17 +3,16 @@ import PropTypes from 'prop-types'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { FieldSelect } from '@looker/components'
 
-export const ModelAndExploreMenu = ({ models, explores, activeModel, activeExplore, setActiveModel, setActiveExplore, buildFilterMenu }) => {
+export const ModelAndExploreMenu = ({ models, explores, activeModel, activeExplore, setActiveModel, setActiveExplore, setFilters, coreSDK, buildFilterMenu }) => {
   
-  const buildFilters = async () => {
-    console.log('building')
-    const extensionSDK = await connectExtensionHost()
-    const coreSDK = LookerExtensionSDK.create40Client(extensionSDK)
+  const buildFilterMenuHere = async () => {
+    console.log('building-module')
     console.log(coreSDK)
-    const result = await coreSDK.lookml_model_explore({activeModel},{activeExplore})
-    const fields = result.fields
+    const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    console.log(result)
+    const fields = result.value.fields
     let tempObj = {}
-    result.scopes.forEach(scope => {
+    result.value.scopes.forEach(scope => {
       tempObj[scope] = { 
         id: scope,
         label: '',
@@ -65,6 +64,7 @@ ModelAndExploreMenu.propTypes = {
   activeExplore: PropTypes.string,
   setActiveModel: PropTypes.func,
   setActiveExplore: PropTypes.func,
-  // setFilters: PropTypes.func
+  setFilters: PropTypes.func,
+  coreSDK: PropTypes.object,
   buildFilterMenu: PropTypes.func
 }

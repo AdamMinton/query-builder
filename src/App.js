@@ -33,9 +33,6 @@ import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import mockData from './mock-data.json'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 
-let extensionSDK
-let coreSDK
-
 export const App = hot(() => {
   
   const [models, setModels] = useState([{value: '', name: 'Choose a Model'}])
@@ -45,7 +42,8 @@ export const App = hot(() => {
   const [activeExplore, setActiveExplore] = useState('')
   const [activeFilters, setActiveFilters] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
-
+  const [coreSDK, setCoreSDK] = useState({})
+    
   const handleBuildAudienceClick = () => {
     setBuildAudienceOpen(!buildAudienceOpen)
   }
@@ -53,10 +51,11 @@ export const App = hot(() => {
   const buildFilterMenu = async () => {
     console.log('building-appjs')
     console.log(coreSDK)
-    const result = await coreSDK.lookml_model_explore({activeModel},{activeExplore})
-    const fields = result.fields
+    const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    console.log(result)
+    const fields = result.value.fields
     let tempObj = {}
-    result.scopes.forEach(scope => {
+    result.value.scopes.forEach(scope => {
       tempObj[scope] = { 
         id: scope,
         label: '',
@@ -81,27 +80,28 @@ export const App = hot(() => {
     console.log(filterObj)
   }
 
-  useEffect(async () => {
-    const host = await connectExtensionHost()
-    console.log(host)
-    extensionSDK = host
-    coreSDK = LookerExtensionSDK.create40Client(extensionSDK)
-    const result = await coreSDK.all_lookml_models('name,explores')
-    let tempModels = []
-    let tempExplores = {}
-    result.value.forEach(model => {
-      if (model.explores.length) {
-        tempModels.push({ value: model.name, label: model.label})
-        tempExplores[model.name] = []
-        model.explores.forEach(explore => {
-          tempExplores[model.name].push({ value: explore.name, label: explore.label})
-        })
-      }
-    })
-    setModels(tempModels)
-    setExplores(tempExplores)
-    console.log(coreSDK)
-  })
+  useEffect(() => {
+    const pullModelsAndExplores = async () => {
+      const extensionSDK = await connectExtensionHost()
+      const tempSDK = LookerExtensionSDK.create40Client(extensionSDK)
+      const result = await tempSDK.all_lookml_models('name,explores')
+      let tempModels = []
+      let tempExplores = {}
+      result.value.forEach(model => {
+        if (model.explores.length) {
+          tempModels.push({ value: model.name, label: model.label})
+          tempExplores[model.name] = []
+          model.explores.forEach(explore => {
+            tempExplores[model.name].push({ value: explore.name, label: explore.label})
+          })
+        }
+      })
+      setModels(tempModels)
+      setExplores(tempExplores)
+      setCoreSDK(tempSDK)
+    }
+    pullModelsAndExplores()
+  }, [])
   
   return (
     <ComponentsProvider>
@@ -114,6 +114,7 @@ export const App = hot(() => {
           activeExplore = {activeExplore}
           setActiveModel = {setActiveModel}
           setActiveExplore = {setActiveExplore}
+          coreSDK = {coreSDK}
           buildFilterMenu = {buildFilterMenu}
         />
           <Divider mt="u4" appearance="light" />
