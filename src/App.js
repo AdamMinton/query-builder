@@ -37,7 +37,7 @@ export const App = hot(() => {
   
   const [models, setModels] = useState([{value: '', name: 'Choose a Model'}])
   const [explores, setExplores] = useState({ temp: [{value: '', name: 'Choose an Explore'}]})
-  const [filters, setFilters] = useState({})
+  const [filters, setFilters] = useState({ items: [] })
   const [activeModel, setActiveModel] = useState('')
   const [activeExplore, setActiveExplore] = useState('')
   const [activeFilters, setActiveFilters] = useState([])
@@ -50,9 +50,15 @@ export const App = hot(() => {
 
   const buildFilterMenu = async () => {
     console.log('building-appjs')
-    console.log(coreSDK)
-    const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
-    console.log(result)
+    // console.log(coreSDK)
+    let SDKResult = false
+    let result
+    while (!SDKResult) { 
+      result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+      console.log(result.ok)
+      SDKResult = result.ok
+    }
+    // console.log(result)
     const fields = result.value.fields
     let tempObj = {}
     result.value.scopes.forEach(scope => {
@@ -62,8 +68,8 @@ export const App = hot(() => {
         items: []
       }
     })
-    for (let categories in fields) {
-      fields[categories].forEach(field => {
+    for (let category of ['dimensions','measures']) {
+      fields[category].forEach(field => {
         tempObj[field.scope].label = field.view_label
         tempObj[field.scope].items.push({
           id: field.name,
@@ -119,7 +125,8 @@ export const App = hot(() => {
         />
           <Divider mt="u4" appearance="light" />
           <Sidebar
-            filters={mockData.items}
+            //filters={mockData.items}
+            filters={filters.items}
             activeFilters={activeFilters}
             setActiveFilters={setActiveFilters}
           />

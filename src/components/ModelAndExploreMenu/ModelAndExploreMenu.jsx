@@ -19,8 +19,8 @@ export const ModelAndExploreMenu = ({ models, explores, activeModel, activeExplo
         items: []
       }
     })
-    for (let categories in fields) {
-      fields[categories].forEach(field => {
+    for (let category of ['dimensions','measures']) {
+      fields[category].forEach(field => {
         tempObj[field.scope].label = field.view_label
         tempObj[field.scope].items.push({
           id: field.name,
