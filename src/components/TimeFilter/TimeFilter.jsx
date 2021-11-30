@@ -30,13 +30,22 @@ import { Filter } from '@looker/filter-components'
 export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
   const [expression, setExpression] = useState('')
   const [dateOption, setDateOption] = useState({})
-  const [rerenderFilter, setRerenderFilter] = useState(false)
+
+  const today = new Date()
+  let lastWeek = new Date(today)
+  lastWeek.setDate(lastWeek.getDate() - 7)
 
   const dateOptions = [
     { value: 'relative_timeframes', label: "Relative Timeframe"},
     { value: 'day_range_picker', label: "Date Range"},
     { value: 'day_picker', label: "Individual Day"}
   ]
+
+  const defaultExpressions = {
+    relative_timeframes: "7 day",
+    day_range_picker: `${lastWeek.toISOString().slice(0, 10)} to ${today.toISOString().slice(0, 10)}`,
+    day_picker: today.toISOString().slice(0, 10)
+  }
 
   const handleChange = (value) => {
     setExpression(value.expression)
@@ -55,9 +64,7 @@ export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
-  useEffect(() => {
-    setRerenderFilter(!rerenderFilter)
-  }, [dateOption])
+  useEffect(() => { setExpression(defaultExpressions[dateOption.type]) }, [dateOption])
 
   return (
     <div>
@@ -65,11 +72,11 @@ export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
         name="Date Options"
         placeholder="Choose a Date Input"
         options={dateOptions}
-        onChange={(event) => { setDateOption({ type: event }); console.log(dateOption) }}
+        onChange={(event) => { setDateOption({ type: event }) }}
       />
       <Filter
         name={filter.label}
-        expressionType="date_time"
+        expressionType="date"
         expression={expression}
         onChange={handleChange}
         config={dateOption}

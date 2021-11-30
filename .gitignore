@@ -6,4 +6,5 @@ dist
 .env
 .eslintcache
 .idea
-yarn.lock
+scratchpad.js
+explore.json

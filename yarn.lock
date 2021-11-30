@@ -1485,6 +1485,20 @@
     history "^4.9.0"
     lodash "^4.17.20"
 
+"@looker/extension-sdk@^21.20.0":
+  version "21.20.0"
+  resolved "https://registry.yarnpkg.com/@looker/extension-sdk/-/extension-sdk-21.20.0.tgz#74a88db363a16f6595d48d418516a4f21d713495"
+  integrity sha512-5lT8m7CvXfj1r9WpW+r6BYMDgce3OZUVSP4Pe5KoB4iMpmZxQLPn2pSYx4w4WBml6t61brSRUslGA/3qUjDVfQ==
+  dependencies:
+    "@looker/chatty" "^2.3.0"
+    "@looker/sdk" "^21.20.0"
+    "@looker/sdk-rtl" "^21.2.0"
+    deepmerge "^4.2.2"
+    readable-stream "^3.4.0"
+    request "^2.88.0"
+    request-promise-native "^1.0.8"
+    semver "^7.3.4"
+
 "@looker/extension-sdk@^21.4.5":
   version "21.4.5"
   resolved "https://registry.yarnpkg.com/@looker/extension-sdk/-/extension-sdk-21.4.5.tgz#cd900d5b49eb281ea3e644b11f9f0e5266702115"
@@ -1567,12 +1581,33 @@
     request "^2.88.0"
     request-promise-native "^1.0.8"
 
+"@looker/sdk-rtl@^21.2.0":
+  version "21.2.0"
+  resolved "https://registry.yarnpkg.com/@looker/sdk-rtl/-/sdk-rtl-21.2.0.tgz#a62c8f438c437fea65ab8466fb9e9e6dde9fb5e0"
+  integrity sha512-CC9+qDrP/IsBzG34H5hbRz45tBvr6FifSe58+k6FghpWiiZ1wOKDsLOgAg25+VNxMLjz1+uk/R9+uyu32eLoDw==
+  dependencies:
+    ini "^1.3.8"
+    readable-stream "^3.4.0"
+    request "^2.88.0"
+    request-promise-native "^1.0.8"
+
 "@looker/sdk@^21.12.0", "@looker/sdk@^21.8.0":
   version "21.14.0"
   resolved "https://registry.yarnpkg.com/@looker/sdk/-/sdk-21.14.0.tgz#56d6da1eb1ea65e145e25291f09160cc283f9e4f"
   integrity sha512-0/oh+95HYNG9VoqzKRim6z7bPic9ZgvlnDoBpQ1OZDLuufAWImZPiIwn2qBZESpCEgq1Sj3f2zdD+oqrLfCLIQ==
   dependencies:
     "@looker/sdk-rtl" "^21.0.20"
+    ini "^1.3.8"
+    readable-stream "^3.4.0"
+    request "^2.88.0"
+    request-promise-native "^1.0.8"
+
+"@looker/sdk@^21.20.0":
+  version "21.20.0"
+  resolved "https://registry.yarnpkg.com/@looker/sdk/-/sdk-21.20.0.tgz#81f00b6bddc3d47406c3dc74ad2480004622a567"
+  integrity sha512-h4cmD3zACcAQZ+3P9iSO1OzXUqdNq+1iaaVO4Py8IY9LPArkwZghlTIzKMG9XAqUM+xqXDTKXI88vFmBllCy5w==
+  dependencies:
+    "@looker/sdk-rtl" "^21.2.0"
     ini "^1.3.8"
     readable-stream "^3.4.0"
     request "^2.88.0"
@@ -9314,11 +9349,6 @@ use-debounce@5.2.1:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/use-debounce/-/use-debounce-5.2.1.tgz#7366543c769f1de3e92104dee64de5c4dfddfd33"
   integrity sha512-BQG5uEypYHd/ASF6imzYR8tJHh5qGn28oZG/5iVAbljV6MUrfyT4jzxA8co+L+WLCT1U8VBwzzvlb3CHmUDpEA==
-
-use-global-hook@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/use-global-hook/-/use-global-hook-0.3.0.tgz#bea26e1afe9fc12ef34c04c1646412f7ee65896e"
-  integrity sha512-uzQmqPuBUEZV4oJOpnhnwLEVkGOfc471k6uul1SgNM43HWS3ZjL8tb1QKa2VjoGPNk40nvnl8kndZnIyiVNvtA==
 
 use@^3.1.0:
   version "3.1.1"

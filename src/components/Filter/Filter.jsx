@@ -71,7 +71,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
             onChange={handleChange}
           />
         )}
-        {filter.type === 'date_date' && (
+        {filter.type === 'date' && (
           <TimeFilter
             activeFilters={activeFilters}
             filter={filter}
