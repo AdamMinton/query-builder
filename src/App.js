@@ -48,17 +48,33 @@ export const App = hot(() => {
     setBuildAudienceOpen(!buildAudienceOpen)
   }
 
-  const buildFilterMenu = async () => {
+  useEffect(async () => {
+    const extensionSDK = await connectExtensionHost()
+    const tempSDK = LookerExtensionSDK.create40Client(extensionSDK)
+    setCoreSDK(tempSDK)
+    // console.log(tempSDK)
+    const result = await tempSDK.all_lookml_models('name,explores')
+    let tempModels = []
+    let tempExplores = {}
+    result.value.forEach(model => {
+      if (model.explores.length) {
+        tempModels.push({ value: model.name, label: model.label})
+        tempExplores[model.name] = []
+        model.explores.forEach(explore => {
+          tempExplores[model.name].push({ value: explore.name, label: explore.label})
+        })
+      }
+    })
+    setModels(tempModels)
+    setExplores(tempExplores)
+  }, [])
+  
+  useEffect(async () => {
     console.log('building-appjs')
+    // console.log(activeExplore)
     // console.log(coreSDK)
-    let SDKResult = false
-    let result
-    while (!SDKResult) { 
-      result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
-      console.log(result.ok)
-      SDKResult = result.ok
-    }
-    // console.log(result)
+    const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    console.log(result.ok)
     const fields = result.value.fields
     let tempObj = {}
     result.value.scopes.forEach(scope => {
@@ -68,47 +84,48 @@ export const App = hot(() => {
         items: []
       }
     })
+    const typeMap = {
+      number: 'number',
+      string: 'string',
+      yesno: 'yesno',
+      date_date: 'date_date',
+      zipcode: 'number',
+      count: 'number',
+      average_distinct: 'number',
+      date_year: 'number',
+      date_day_of_month: 'number',
+      date_day_of_year: 'number',
+      date_month: 'number',
+      count_distinct: 'number',
+      sum_distinct: 'number',
+      max: 'number',
+      min: 'number',
+      average: 'number',
+      sum: 'number'
+    }
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
-        tempObj[field.scope].label = field.view_label
-        tempObj[field.scope].items.push({
-          id: field.name,
-          label: field.label_short,
-          type: field.type
-        })
+        if (typeMap.hasOwnProperty(field.type)) {
+          tempObj[field.scope].label = field.view_label
+          tempObj[field.scope].items.push({
+            id: field.name,
+            label: field.label_short,
+            type: typeMap[field.type]
+          })
+        }
       })
     }
     let filterObj = { items: [] }
     for (let scope in tempObj) {
-      filterObj.items.push(tempObj[scope])
+      if (tempObj[scope].items.length) {
+        filterObj.items.push(tempObj[scope])
+      }
     }
     setFilters(filterObj)
     console.log(filterObj)
-  }
+  }, [activeExplore])
 
-  useEffect(() => {
-    const pullModelsAndExplores = async () => {
-      const extensionSDK = await connectExtensionHost()
-      const tempSDK = LookerExtensionSDK.create40Client(extensionSDK)
-      const result = await tempSDK.all_lookml_models('name,explores')
-      let tempModels = []
-      let tempExplores = {}
-      result.value.forEach(model => {
-        if (model.explores.length) {
-          tempModels.push({ value: model.name, label: model.label})
-          tempExplores[model.name] = []
-          model.explores.forEach(explore => {
-            tempExplores[model.name].push({ value: explore.name, label: explore.label})
-          })
-        }
-      })
-      setModels(tempModels)
-      setExplores(tempExplores)
-      setCoreSDK(tempSDK)
-    }
-    pullModelsAndExplores()
-  }, [])
-  
+
   return (
     <ComponentsProvider>
       <Space height="100%" align="start">
@@ -121,7 +138,6 @@ export const App = hot(() => {
           setActiveModel = {setActiveModel}
           setActiveExplore = {setActiveExplore}
           coreSDK = {coreSDK}
-          buildFilterMenu = {buildFilterMenu}
         />
           <Divider mt="u4" appearance="light" />
           <Sidebar

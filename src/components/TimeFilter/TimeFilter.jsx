@@ -21,15 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box2, FieldSelect } from '@looker/components'
+import { FieldSelect } from '@looker/components'
 import { Filter } from '@looker/filter-components'
-import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
-import { StyledItemInner, StyledLabel } from './Filter.styles'
+// import { StyledItemInner, StyledLabel } from './Filter.styles'
 
-export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
+export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
   const [expression, setExpression] = useState('')
+  const [dateOption, setDateOption] = useState({})
+  const [rerenderFilter, setRerenderFilter] = useState(false)
+
+  const dateOptions = [
+    { value: 'relative_timeframes', label: "Relative Timeframe"},
+    { value: 'day_range_picker', label: "Date Range"},
+    { value: 'day_picker', label: "Individual Day"}
+  ]
 
   const handleChange = (value) => {
     setExpression(value.expression)
@@ -48,50 +55,30 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
-  return (
-    <Box2 m="u3">
-      <StyledItemInner>
-        <StyledLabel fontSize="small">{filter.label}</StyledLabel>
+  useEffect(() => {
+    setRerenderFilter(!rerenderFilter)
+  }, [dateOption])
 
-        {filter.type === 'string' && (
-          <Filter
-            name={filter.label}
-            type="field_filter"
-            expressionType="string"
-            expression={expression}
-            onChange={handleChange}
-          />
-        )}
-        {filter.type === 'number' && (
-          <Filter
-            name={filter.label}
-            type="field_filter"
-            expressionType="number"
-            expression={expression}
-            onChange={handleChange}
-          />
-        )}
-        {filter.type === 'date_date' && (
-          <TimeFilter
-            activeFilters={activeFilters}
-            filter={filter}
-            setActiveFilters={setActiveFilters}
-          />
-        )}
-        {filter.type === 'location' && (
-          <Filter
-            name={filter.label}
-            expressionType="location"
-            expression={expression}
-            onChange={handleChange}
-          />
-        )}
-      </StyledItemInner>
-    </Box2>
+  return (
+    <div>
+      <FieldSelect
+        name="Date Options"
+        placeholder="Choose a Date Input"
+        options={dateOptions}
+        onChange={(event) => { setDateOption({ type: event }); console.log(dateOption) }}
+      />
+      <Filter
+        name={filter.label}
+        expressionType="date_time"
+        expression={expression}
+        onChange={handleChange}
+        config={dateOption}
+      />
+    </div>
   )
 }
 
-FilterItem.propTypes = {
+TimeFilter.propTypes = {
   activeFilters: PropTypes.array,
   filter: PropTypes.object,
   setActiveFilters: PropTypes.func,

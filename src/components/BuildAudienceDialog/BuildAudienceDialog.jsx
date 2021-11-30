@@ -74,5 +74,5 @@ export const BuildAudienceDialog = ({ isOpen, setIsOpen }) => {
 
 BuildAudienceDialog.propTypes = {
   isOpen: PropTypes.bool,
-  setIsOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
 }
