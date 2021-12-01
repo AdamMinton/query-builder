@@ -25,7 +25,6 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { FieldSelect } from '@looker/components'
 import { Filter } from '@looker/filter-components'
-// import { StyledItemInner, StyledLabel } from './Filter.styles'
 
 export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
   const [expression, setExpression] = useState('')

@@ -28,6 +28,7 @@ import { ComponentsProvider, Space, Button, Divider } from '@looker/components'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
+import { AudienceSize } from './components/AudienceSize/AudienceSize'
 import { StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import mockData from './mock-data.json'
@@ -43,6 +44,7 @@ export const App = hot(() => {
   const [activeFilters, setActiveFilters] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
   const [coreSDK, setCoreSDK] = useState({})
+  const [query, setQuery] = useState({})
     
   const handleBuildAudienceClick = () => {
     setBuildAudienceOpen(!buildAudienceOpen)
@@ -161,7 +163,11 @@ export const App = hot(() => {
           align="start"
           p="large"
         >
-          <Button>Check Audience Size</Button>
+          <AudienceSize
+            activeFilters={activeFilters}
+            setQuery={setQuery}
+            coreSDK={coreSDK}
+          />
           <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
         </StyledRightSidebar>
       </Space>

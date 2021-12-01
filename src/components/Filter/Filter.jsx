@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box2, FieldSelect } from '@looker/components'
+import { Box2 } from '@looker/components'
 import { Filter } from '@looker/filter-components'
 import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
 import { StyledItemInner, StyledLabel } from './Filter.styles'
@@ -47,6 +47,8 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
 
     setActiveFilters(newFilters)
   }
+
+  useEffect(() => { console.log(activeFilters) }, [activeFilters])
 
   return (
     <Box2 m="u3">
