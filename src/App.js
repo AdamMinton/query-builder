@@ -42,12 +42,33 @@ export const App = hot(() => {
   const [activeModel, setActiveModel] = useState('')
   const [activeExplore, setActiveExplore] = useState('')
   const [activeFilters, setActiveFilters] = useState([])
+  const [allFields, setAllFields] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
   const [coreSDK, setCoreSDK] = useState({})
   const [query, setQuery] = useState({})
+  const [size, setSize] = useState(0)
+  
+  
     
-  const handleBuildAudienceClick = () => {
+  const handleBuildAudienceClick = async () => {
     setBuildAudienceOpen(!buildAudienceOpen)
+    const createdQuery = await coreSDK.createQuery(query.body)
+    const id = createdQuery.id
+    setQuery({...query, id})
+    const lookRequestBody = {
+      "title": "", //figure out how to name
+      // "user_id": 0,
+      // "deleted": false,
+      "description": "", //figure out how to populate
+      "is_run_on_load": false,
+      "public": false,
+      "query_id": id,
+      "folder": { 'name': ' '}, //figure out if required
+      "folder_id": "", //figure out if required
+      // "query": {}
+    }
+    const createdLook = await coreSDK.createLook(lookRequestBody)
+    // connect look fields to existing integration form needs?
   }
 
   useEffect(async () => {
@@ -69,15 +90,13 @@ export const App = hot(() => {
     })
     setModels(tempModels)
     setExplores(tempExplores)
+    // maybe fetch_integration_form for the action hub on load?
   }, [])
   
   useEffect(async () => {
-    console.log('building-appjs')
-    // console.log(activeExplore)
-    // console.log(coreSDK)
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
-    console.log(result.ok)
     const fields = result.value.fields
+    let tempAllFields = []
     let tempObj = {}
     result.value.scopes.forEach(scope => {
       tempObj[scope] = { 
@@ -92,7 +111,7 @@ export const App = hot(() => {
       yesno: 'yesno',
       date: 'date',
       date_date: 'date',
-      zipcode: 'number',
+      zipcode: 'string',
       count: 'number',
       average_distinct: 'number',
       date_year: 'number',
@@ -109,6 +128,7 @@ export const App = hot(() => {
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
         if (typeMap.hasOwnProperty(field.type)) {
+          tempAllFields.push(field.name)
           tempObj[field.scope].label = field.view_label
           tempObj[field.scope].items.push({
             id: field.name,
@@ -125,6 +145,7 @@ export const App = hot(() => {
       }
     }
     setFilters(filterObj)
+    setAllFields([...tempAllFields])
     console.log(filterObj)
   }, [activeExplore])
 
@@ -165,10 +186,18 @@ export const App = hot(() => {
         >
           <AudienceSize
             activeFilters={activeFilters}
+            allFields={allFields}
             setQuery={setQuery}
             coreSDK={coreSDK}
+            activeModel={activeModel}
+            activeExplore={activeExplore}
+            size={size}
+            setSize={setSize}
           />
-          <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
+          <Divider mt="u4" appearance="light" />
+          { size
+            ? <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
+            : <Button disabled>Build Audience</Button> }
         </StyledRightSidebar>
       </Space>
 

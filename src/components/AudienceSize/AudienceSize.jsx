@@ -23,14 +23,31 @@
  */
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button } from '@looker/components'
+import { Button, Span } from '@looker/components'
 import { Filter } from '@looker/filter-components'
 // import { StyledItemInner, StyledLabel } from './Filter.styles'
 
-export const AudienceSize = ({ activeFilters, setQuery, coreSDK }) => {
+export const AudienceSize = ({ activeFilters, allFields, setQuery, coreSDK, activeModel, activeExplore }) => {
 
-  const checkAudienceSize = () => {
-
+  const [size, setSize] = useState('')
+  
+  const display = new Intl.NumberFormat('en-US', {style: 'decimal'});
+  
+  const checkAudienceSize = async () => {
+    let body = {
+      model: activeModel,
+      view: activeExplore,
+      filters: {},
+      fields: allFields
+    }
+    activeFilters.forEach(filter => {
+      body.filters[filter.id] = filter.expression 
+    })
+    setQuery(body)
+    console.log(body)
+    const result = await coreSDK.run_inline_query({ result_format: 'json', body })
+    console.log(result)
+    //setSize(result.value.length)
   }
   
   // const handleChange = (value) => {
@@ -54,13 +71,21 @@ export const AudienceSize = ({ activeFilters, setQuery, coreSDK }) => {
 
   return (
     <div>
-      <Button onClick={checkAudienceSize}>Check Audience Size</Button>  
+      { activeFilters.length
+        ? <Button onClick={checkAudienceSize /*setSize(Math.ceil(Math.random()*1000000))*/}>Check Audience Size</Button>
+        : <Button disabled>Check Audience Size</Button> }
+      <br></br>
+      <br></br>
+      <Span fontSize="xxxxlarge">{display.format(size)}</Span>
     </div>
   )
 }
 
 AudienceSize.propTypes = {
   activeFilters: PropTypes.array,
+  allFields: PropTypes.array,
   setQuery: PropTypes.func,
-  coreSDK: PropTypes.object
+  coreSDK: PropTypes.object,
+  activeModel: PropTypes.string,
+  activeExplore: PropTypes.string
 }
