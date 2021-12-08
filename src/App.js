@@ -41,6 +41,9 @@ export const App = hot(() => {
   const [filters, setFilters] = useState({ items: [] })
   const [activeModel, setActiveModel] = useState('')
   const [activeExplore, setActiveExplore] = useState('')
+  const [exploreIsValid, setExploreIsValid] = useState(null)
+  const [uidField, setUidField] = useState([])
+  const [requiredFields, setRequiredFields] = useState({})
   const [activeFilters, setActiveFilters] = useState([])
   const [allFields, setAllFields] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
@@ -48,7 +51,20 @@ export const App = hot(() => {
   const [query, setQuery] = useState({})
   const [size, setSize] = useState(0)
   
-  
+  const uidTag = 'google-ads-uid'
+  const googleAdsTags = [
+    'google-ads-idfa',
+    'google-ads-aaid',
+    'google-ads-email',
+    'google-ads-phone',
+    'google-ads-first',
+    'google-ads-last',
+    'google-ads-street',
+    'google-ads-city',
+    'google-ads-state',
+    'google-ads-country',
+    'google-ads-postal'
+  ]
     
   const handleBuildAudienceClick = async () => {
     setBuildAudienceOpen(!buildAudienceOpen)
@@ -95,9 +111,13 @@ export const App = hot(() => {
   
   useEffect(async () => {
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    let isUidPresent = false
+    let isRequiredTagPresent = false
     const fields = result.value.fields
     let tempAllFields = []
     let tempObj = {}
+    let tempRequiredFields = {}
+    let tempUidField = []
     result.value.scopes.forEach(scope => {
       tempObj[scope] = { 
         id: scope,
@@ -135,6 +155,23 @@ export const App = hot(() => {
             label: field.label_short,
             type: typeMap[field.type]
           })
+          for (let i=0; i<field.tags.length; i++) {
+            if (field.tags[i] === uidTag) {
+              console.log('uid', field.name)
+              isUidPresent = true
+              tempUidField.push(field.name)
+            }
+            if (googleAdsTags.includes(field.tags[i])) {
+              console.log(field.tags[i], field.name)
+              isRequiredTagPresent = true
+              if (tempRequiredFields.hasOwnProperty(field.tags[i])) {
+                tempRequiredFields[field.tags[i]].push(field.name)
+              } else {
+                tempRequiredFields[field.tags[i]] = [ field.name ]
+              }
+              console.log(tempRequiredFields)
+            }
+          }
         }
       })
     }
@@ -147,8 +184,14 @@ export const App = hot(() => {
     setFilters(filterObj)
     setAllFields([...tempAllFields])
     console.log(filterObj)
+    setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
+    setRequiredFields(tempRequiredFields)
+    setUidField(tempUidField)
   }, [activeExplore])
 
+  useEffect(() => console.log('uid state', uidField), [uidField])
+  useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
+  useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
 
   return (
     <ComponentsProvider>

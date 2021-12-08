@@ -47,7 +47,8 @@ export const AudienceSize = ({ activeFilters, allFields, setQuery, coreSDK, acti
     console.log(body)
     const result = await coreSDK.run_inline_query({ result_format: 'json', body })
     console.log(result)
-    //setSize(result.value.length)
+    setSize(result.value.length)
+    // setSize(Math.ceil(Math.random()*1000000))
   }
   
   // const handleChange = (value) => {
@@ -72,7 +73,7 @@ export const AudienceSize = ({ activeFilters, allFields, setQuery, coreSDK, acti
   return (
     <div>
       { activeFilters.length
-        ? <Button onClick={checkAudienceSize /*setSize(Math.ceil(Math.random()*1000000))*/}>Check Audience Size</Button>
+        ? <Button onClick={checkAudienceSize}>Check Audience Size</Button>
         : <Button disabled>Check Audience Size</Button> }
       <br></br>
       <br></br>
