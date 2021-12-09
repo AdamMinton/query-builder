@@ -24,7 +24,7 @@
 
 import { hot } from 'react-hot-loader/root'
 import React, { useState, useEffect } from 'react'
-import { ComponentsProvider, Space, Button, Divider } from '@looker/components'
+import { ComponentsProvider, Space, Button, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
@@ -50,6 +50,7 @@ export const App = hot(() => {
   const [coreSDK, setCoreSDK] = useState({})
   const [query, setQuery] = useState({})
   const [size, setSize] = useState(0)
+  const [isWorking, setIsWorking] = useState(false)
   
   const uidTag = 'google-ads-uid'
   const googleAdsTags = [
@@ -110,11 +111,12 @@ export const App = hot(() => {
   }, [])
   
   useEffect(async () => {
+    activeExplore !== '' && setIsWorking(true)
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
     let isUidPresent = false
     let isRequiredTagPresent = false
     const fields = result.value.fields
-    let tempAllFields = []
+    // let tempAllFields = []
     let tempObj = {}
     let tempRequiredFields = {}
     let tempUidField = []
@@ -148,7 +150,7 @@ export const App = hot(() => {
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
         if (typeMap.hasOwnProperty(field.type)) {
-          tempAllFields.push(field.name)
+          // tempAllFields.push(field.name)
           tempObj[field.scope].label = field.view_label
           tempObj[field.scope].items.push({
             id: field.name,
@@ -181,8 +183,9 @@ export const App = hot(() => {
         filterObj.items.push(tempObj[scope])
       }
     }
+    setIsWorking(false)
     setFilters(filterObj)
-    setAllFields([...tempAllFields])
+    // setAllFields([...tempAllFields])
     console.log(filterObj)
     setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
     setRequiredFields(tempRequiredFields)
@@ -207,12 +210,27 @@ export const App = hot(() => {
           coreSDK = {coreSDK}
         />
           <Divider mt="u4" appearance="light" />
-          <Sidebar
-            //filters={mockData.items}
-            filters={filters.items}
-            activeFilters={activeFilters}
-            setActiveFilters={setActiveFilters}
-          />
+          { isWorking && <Space justifyContent="center">
+                          <ProgressCircular />
+                        </Space>
+          }
+          { !exploreIsValid
+              ? exploreIsValid === null
+                ? <div></div>
+                : uidField.length !== 1
+                  ? <MessageBar intent="critical">
+                      Please ensure one and only one field in your model has the <Code>google-ads-uid</Code> tag.
+                    </MessageBar>
+                  : <MessageBar intent="critical">
+                      No fields in your model were tagged for the Google Ads Customer Match action.
+                    </MessageBar>
+              : <Sidebar
+                  //filters={mockData.items}
+                  filters={filters.items}
+                  activeFilters={activeFilters}
+                  setActiveFilters={setActiveFilters}
+                />
+          }
         </StyledSidebar>
 
         <Space>
