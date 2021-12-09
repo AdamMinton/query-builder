@@ -45,12 +45,11 @@ export const App = hot(() => {
   const [uidField, setUidField] = useState([])
   const [requiredFields, setRequiredFields] = useState({})
   const [activeFilters, setActiveFilters] = useState([])
-  const [allFields, setAllFields] = useState([])
   const [buildAudienceOpen, setBuildAudienceOpen] = useState(false)
   const [coreSDK, setCoreSDK] = useState({})
   const [query, setQuery] = useState({})
-  const [size, setSize] = useState(0)
   const [isWorking, setIsWorking] = useState(false)
+  const [size, setSize] = useState('')
   
   const uidTag = 'google-ads-uid'
   const googleAdsTags = [
@@ -192,6 +191,11 @@ export const App = hot(() => {
     setUidField(tempUidField)
   }, [activeExplore])
 
+  useEffect(() => {
+    if (!activeFilters.length) {
+      setSize(0)
+    }
+  }, [activeFilters])
   useEffect(() => console.log('uid state', uidField), [uidField])
   useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
   useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
@@ -247,7 +251,8 @@ export const App = hot(() => {
         >
           <AudienceSize
             activeFilters={activeFilters}
-            allFields={allFields}
+            uidField={uidField[0]}
+            requiredFields={requiredFields}
             setQuery={setQuery}
             coreSDK={coreSDK}
             activeModel={activeModel}

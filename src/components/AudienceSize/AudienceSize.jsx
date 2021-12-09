@@ -23,52 +23,43 @@
  */
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Span } from '@looker/components'
+import { Button, Span, Space, ProgressCircular, MessageBar } from '@looker/components'
 import { Filter } from '@looker/filter-components'
 // import { StyledItemInner, StyledLabel } from './Filter.styles'
 
-export const AudienceSize = ({ activeFilters, allFields, setQuery, coreSDK, activeModel, activeExplore }) => {
+export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery, coreSDK, activeModel, activeExplore, size, setSize }) => {
 
-  const [size, setSize] = useState('')
-  
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [isQueryError, setIsQueryError] = useState(false)
+
   const display = new Intl.NumberFormat('en-US', {style: 'decimal'});
   
   const checkAudienceSize = async () => {
+    setIsCalculating(true)
+    setIsQueryError(false)
     let body = {
       model: activeModel,
       view: activeExplore,
       filters: {},
-      fields: allFields
+      fields: [uidField]
     }
     activeFilters.forEach(filter => {
-      body.filters[filter.id] = filter.expression 
+      body.filters[filter.id] = filter.expression
     })
+    for (let requirement in requiredFields) {
+      body.fields = body.fields.concat(requiredFields[requirement])
+    }
     setQuery(body)
     console.log(body)
     const result = await coreSDK.run_inline_query({ result_format: 'json', body })
     console.log(result)
-    setSize(result.value.length)
-    // setSize(Math.ceil(Math.random()*1000000))
+    setIsCalculating(false)
+    if (result.value.length === 1 && Object.keys(result.value[0])[0] === 'looker_error') {
+      setIsQueryError(true)
+    } else {
+      setSize(result.value.length)
+    }
   }
-  
-  // const handleChange = (value) => {
-  //   setExpression(value.expression)
-
-  //   // Find current filter and update expression value
-  //   const newFilters = activeFilters.map((f) => {
-  //     if (f.id === filter.id) {
-  //       return {
-  //         ...f,
-  //         expression: value.expression,
-  //       }
-  //     }
-  //     return f
-  //   })
-
-  //   setActiveFilters(newFilters)
-  // }
-
-  // useEffect(() => { setExpression(defaultExpressions[dateOption.type]) }, [dateOption])
 
   return (
     <div>
@@ -77,16 +68,28 @@ export const AudienceSize = ({ activeFilters, allFields, setQuery, coreSDK, acti
         : <Button disabled>Check Audience Size</Button> }
       <br></br>
       <br></br>
-      <Span fontSize="xxxxlarge">{display.format(size)}</Span>
+      { isCalculating
+        ? <Space justifyContent="left"><ProgressCircular /></Space>
+        : !!activeFilters.length
+          ? isQueryError
+            ? <MessageBar intent="critical">
+                Looker error.  Please check the console and your filter set and try again.
+              </MessageBar>
+            : <Span fontSize="xxxxlarge">{display.format(size)}</Span>
+          : <Span fontSize="xxxxlarge" color="text1">{size}</Span>
+      }
     </div>
   )
 }
 
 AudienceSize.propTypes = {
   activeFilters: PropTypes.array,
-  allFields: PropTypes.array,
+  uidField: PropTypes.string,
+  requiredFields: PropTypes.object,
   setQuery: PropTypes.func,
   coreSDK: PropTypes.object,
   activeModel: PropTypes.string,
-  activeExplore: PropTypes.string
+  activeExplore: PropTypes.string,
+  size: PropTypes.number,
+  setSize: PropTypes.func
 }
