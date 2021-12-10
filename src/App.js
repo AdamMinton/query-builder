@@ -68,22 +68,24 @@ export const App = hot(() => {
     
   const handleBuildAudienceClick = async () => {
     setBuildAudienceOpen(!buildAudienceOpen)
-    const createdQuery = await coreSDK.createQuery(query.body)
-    const id = createdQuery.id
+    const createdQuery = await coreSDK.create_query(query)
+    console.log(createdQuery)
+    const id = createdQuery.value.id
     setQuery({...query, id})
     const lookRequestBody = {
-      "title": "", //figure out how to name
+      "title": `Google Ads Customer Match Extension|${activeModel}::${activeExplore}|${new Date().toUTCString()}`,
       // "user_id": 0,
       // "deleted": false,
-      "description": "", //figure out how to populate
+      // "description": "here we go", //figure out how to populate
       "is_run_on_load": false,
       "public": false,
       "query_id": id,
-      "folder": { 'name': ' '}, //figure out if required
-      "folder_id": "", //figure out if required
+      // "folder": { 'name': ' '}, //figure out if required
+      "folder_id": 1
       // "query": {}
     }
-    const createdLook = await coreSDK.createLook(lookRequestBody)
+    const createdLook = await coreSDK.create_look(lookRequestBody)
+    console.log(createdLook)
     // connect look fields to existing integration form needs?
   }
 
@@ -163,14 +165,17 @@ export const App = hot(() => {
               tempUidField.push(field.name)
             }
             if (googleAdsTags.includes(field.tags[i])) {
-              console.log(field.tags[i], field.name)
-              isRequiredTagPresent = true
-              if (tempRequiredFields.hasOwnProperty(field.tags[i])) {
-                tempRequiredFields[field.tags[i]].push(field.name)
-              } else {
-                tempRequiredFields[field.tags[i]] = [ field.name ]
+              const coreString = field.tags[i].split('-')[2]
+              if (field.name.includes(coreString)) {
+                // console.log(field.tags[i], field.name)
+                isRequiredTagPresent = true
+                if (tempRequiredFields.hasOwnProperty(field.tags[i])) {
+                  tempRequiredFields[field.tags[i]].push(field.name)
+                } else {
+                  tempRequiredFields[field.tags[i]] = [ field.name ]
+                }
+                // console.log(tempRequiredFields)
               }
-              console.log(tempRequiredFields)
             }
           }
         }
@@ -184,7 +189,6 @@ export const App = hot(() => {
     }
     setIsWorking(false)
     setFilters(filterObj)
-    // setAllFields([...tempAllFields])
     console.log(filterObj)
     setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
     setRequiredFields(tempRequiredFields)
@@ -226,7 +230,7 @@ export const App = hot(() => {
                       Please ensure one and only one field in your model has the <Code>google-ads-uid</Code> tag.
                     </MessageBar>
                   : <MessageBar intent="critical">
-                      No fields in your model were tagged for the Google Ads Customer Match action.
+                      No fields in your model were correctly tagged and named for the Google Ads Customer Match action.
                     </MessageBar>
               : <Sidebar
                   //filters={mockData.items}
