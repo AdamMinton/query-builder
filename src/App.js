@@ -33,6 +33,7 @@ import { StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import mockData from './mock-data.json'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
+import constants from './constants.js'
 
 export const App = hot(() => {
   
@@ -51,21 +52,6 @@ export const App = hot(() => {
   const [isWorking, setIsWorking] = useState(false)
   const [size, setSize] = useState('')
   
-  const uidTag = 'google-ads-uid'
-  const googleAdsTags = [
-    'google-ads-idfa',
-    'google-ads-aaid',
-    'google-ads-email',
-    'google-ads-phone',
-    'google-ads-first',
-    'google-ads-last',
-    'google-ads-street',
-    'google-ads-city',
-    'google-ads-state',
-    'google-ads-country',
-    'google-ads-postal'
-  ]
-    
   const handleBuildAudienceClick = async () => {
     setBuildAudienceOpen(!buildAudienceOpen)
     const createdQuery = await coreSDK.create_query(query)
@@ -74,18 +60,15 @@ export const App = hot(() => {
     setQuery({...query, id})
     const lookRequestBody = {
       "title": `Google Ads Customer Match Extension|${activeModel}::${activeExplore}|${new Date().toUTCString()}`,
-      // "user_id": 0,
-      // "deleted": false,
-      // "description": "here we go", //figure out how to populate
       "is_run_on_load": false,
       "public": false,
       "query_id": id,
-      // "folder": { 'name': ' '}, //figure out if required
-      "folder_id": 1
-      // "query": {}
+      "folder_id": 1 // may need to dynamically determine ID of "Shared" folder?
     }
     const createdLook = await coreSDK.create_look(lookRequestBody)
     console.log(createdLook)
+    const form = await coreSDK.fetch_integration_form('1::google_ads_customer_match',{})
+    console.log(form)
     // connect look fields to existing integration form needs?
   }
 
@@ -114,10 +97,8 @@ export const App = hot(() => {
   useEffect(async () => {
     activeExplore !== '' && setIsWorking(true)
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
-    let isUidPresent = false
     let isRequiredTagPresent = false
     const fields = result.value.fields
-    // let tempAllFields = []
     let tempObj = {}
     let tempRequiredFields = {}
     let tempUidField = []
@@ -128,53 +109,29 @@ export const App = hot(() => {
         items: []
       }
     })
-    const typeMap = {
-      number: 'number',
-      string: 'string',
-      yesno: 'yesno',
-      date: 'date',
-      date_date: 'date',
-      zipcode: 'string',
-      count: 'number',
-      average_distinct: 'number',
-      date_year: 'number',
-      date_day_of_month: 'number',
-      date_day_of_year: 'number',
-      date_month: 'number',
-      count_distinct: 'number',
-      sum_distinct: 'number',
-      max: 'number',
-      min: 'number',
-      average: 'number',
-      sum: 'number'
-    }
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
-        if (typeMap.hasOwnProperty(field.type)) {
-          // tempAllFields.push(field.name)
+        if (constants.typeMap.hasOwnProperty(field.type)) {
           tempObj[field.scope].label = field.view_label
           tempObj[field.scope].items.push({
             id: field.name,
             label: field.label_short,
-            type: typeMap[field.type]
+            type: constants.typeMap[field.type]
           })
           for (let i=0; i<field.tags.length; i++) {
-            if (field.tags[i] === uidTag) {
+            if (field.tags[i] === constants.uidTag) {
               console.log('uid', field.name)
-              isUidPresent = true
               tempUidField.push(field.name)
             }
-            if (googleAdsTags.includes(field.tags[i])) {
+            if (constants.googleAdsTags.includes(field.tags[i])) {
               const coreString = field.tags[i].split('-')[2]
               if (field.name.includes(coreString)) {
-                // console.log(field.tags[i], field.name)
                 isRequiredTagPresent = true
                 if (tempRequiredFields.hasOwnProperty(field.tags[i])) {
                   tempRequiredFields[field.tags[i]].push(field.name)
                 } else {
                   tempRequiredFields[field.tags[i]] = [ field.name ]
                 }
-                // console.log(tempRequiredFields)
               }
             }
           }
