@@ -51,6 +51,21 @@ export const App = hot(() => {
   const [query, setQuery] = useState({})
   const [isWorking, setIsWorking] = useState(false)
   const [size, setSize] = useState('')
+  const [actionFormFields, setActionFormFields] = useState([]);
+  const [actionInitFormParams, setInitActionFormParams] = useState({});
+  const [actionFormParams, setActionFormParams] = useState({});
+    
+  const getForm = async () => {
+    const form = await coreSDK.fetch_integration_form(constants.formDestination, actionFormParams)
+    const formParams = form.value.fields.reduce(
+      (obj, item) => ({ ...obj, [item.name]: "" }),
+      {}
+    );
+    console.log('form', form);
+    console.log('form', formParams);
+    setInitActionFormParams(formParams);
+    setActionFormFields(form.fields);
+  };
   
   const handleBuildAudienceClick = async () => {
     setBuildAudienceOpen(!buildAudienceOpen)
@@ -65,10 +80,9 @@ export const App = hot(() => {
       "query_id": id,
       "folder_id": 1 // may need to dynamically determine ID of "Shared" folder?
     }
-    const createdLook = await coreSDK.create_look(lookRequestBody)
-    console.log(createdLook)
-    const form = await coreSDK.fetch_integration_form('1::google_ads_customer_match',{})
-    console.log(form)
+    // const createdLook = await coreSDK.create_look(lookRequestBody)
+    // console.log(createdLook)
+    await getForm()
     // connect look fields to existing integration form needs?
   }
 
@@ -160,6 +174,7 @@ export const App = hot(() => {
   useEffect(() => console.log('uid state', uidField), [uidField])
   useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
   useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
+  useEffect(() => console.log('query', query), [query])
 
   return (
     <ComponentsProvider>
@@ -231,6 +246,11 @@ export const App = hot(() => {
       <BuildAudienceDialog
         isOpen={buildAudienceOpen}
         setIsOpen={setBuildAudienceOpen}
+        actionFormFields={actionFormFields}
+        actionInitFormParams={actionInitFormParams}
+        setActionFormParams={setActionFormParams}
+        coreSDK={coreSDK}
+        queryId={query.id}
       />
     </ComponentsProvider>
   )

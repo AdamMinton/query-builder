@@ -33,5 +33,5 @@ module.exports = {
     average: 'number',
     sum: 'number'
   },
-  formDestination: 'looker-integration://1::google_ads_customer_match'
+  formDestination: '1::google_ads_customer_match'
 }
