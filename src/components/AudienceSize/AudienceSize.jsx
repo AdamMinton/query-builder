@@ -50,9 +50,9 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
       body.fields = body.fields.concat(requiredFields[requirement])
     }
     setQuery(body)
-    console.log(body)
+    // console.log(body)
     const result = await coreSDK.run_inline_query({ result_format: 'json', body })
-    console.log(result)
+    // console.log(result)
     setIsCalculating(false)
     if (result.value.length === 1 && Object.keys(result.value[0])[0] === 'looker_error') {
       setIsQueryError(true)

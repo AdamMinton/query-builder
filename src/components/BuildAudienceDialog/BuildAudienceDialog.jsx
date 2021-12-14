@@ -31,12 +31,21 @@ import {
   ButtonTransparent,
   SpaceVertical,
   Paragraph,
-  Select,
+  Select
 } from '@looker/components'
 import constants from '../../constants.js'
 
 
-export const BuildAudienceDialog = ({ isOpen, setIsOpen, actionFormFields, actionInitFormParams, setActionFormParams, coreSDK, queryId }) => {
+export const BuildAudienceDialog = ({ 
+  isOpen,
+  setIsOpen,
+  actionFormFields, 
+  actionInitFormParams,
+  setActionFormParams,
+  coreSDK,
+  queryId,
+  needsOauth
+}) => {
 
   const submitForm = async () => {
     const currentTimestamp = new Date(Date.now()).toLocaleString();
@@ -66,7 +75,7 @@ export const BuildAudienceDialog = ({ isOpen, setIsOpen, actionFormFields, actio
       onClose={() => setIsOpen(false)}
       content={
         <DialogLayout
-          header="A Dialog Example"
+          header="Google Ads Customer"
           footer={
             <DialogContext.Consumer>
               {({ closeModal }) => (
@@ -80,7 +89,7 @@ export const BuildAudienceDialog = ({ isOpen, setIsOpen, actionFormFields, actio
             </DialogContext.Consumer>
           }
         >
-          <SpaceVertical>
+          <SpaceVertical> {/* utilize needsOauth state to direct to login or form */}
             <Paragraph>Select Destination and Get Form</Paragraph>
             <Select
               options={[
@@ -104,7 +113,8 @@ BuildAudienceDialog.propTypes = {
   actionInitFormParams: PropTypes.object,
   setActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
-  queryId: PropTypes.number
+  queryId: PropTypes.number,
+  needsOauth: PropTypes.bool
 }
 
 /*
