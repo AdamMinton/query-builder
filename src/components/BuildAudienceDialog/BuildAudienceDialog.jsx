@@ -102,22 +102,22 @@ export const BuildAudienceDialog = ({
             </DialogContext.Consumer>
           }
         >
-        <SpaceVertical> {/* utilize needsOauth state to direct to login or form */}
-          { needsOauth
-            ? <Button
-                key={actionFormFields[0].name}
-                value={localActionFormParams[actionFormFields[0].name]}
-                onClick={() => {
-                  extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
-                  setTimeout(getForm(coreSDK), 3000); // reload form after 3 seconds
-                }}
-              >
-              {actionFormFields[0].label}
-            </Button> 
-            : actionFormFields.map(field => {
-              // render string field(text or textarea)
-              console.log(field)
-              if (field.type === "string" || field.type === "textarea" || field.type === null) {
+        <SpaceVertical>
+          { actionFormFields.map(field => {
+            if (field.type === "oauth_link" || field.type === "oauth_link_google") {
+              return (
+                <Button
+                  key={actionFormFields[0].name}
+                  value={localActionFormParams[actionFormFields[0].name]}
+                  onClick={() => {
+                    extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
+                    setTimeout(getForm, 3000); // reload form after 3 seconds
+                  }}
+                >
+                  {actionFormFields[0].label}
+                </Button>
+              )
+            } else if (field.type === "string" || field.type === "textarea" || field.type === null) {
                 return (
                   <FieldText
                     name={field.name}
@@ -128,7 +128,7 @@ export const BuildAudienceDialog = ({
                     onChange={event =>
                       onChangeFormSelectParams(field.name, event, "text")
                     }
-                    onBlur={field.interactive ? getForm(coreSDK) : null}
+                    onBlur={field.interactive ? getForm : null}
                     value={localActionFormParams[field.name]}
                   />
                 );
@@ -149,7 +149,7 @@ export const BuildAudienceDialog = ({
                     onChange={event =>
                       onChangeFormSelectParams(field.name, event, "select")
                     }
-                    // onBlur={field.interactive ? getForm(coreSDK) : null}
+                    onBlur={field.interactive ? getForm : null}
                     value={localActionFormParams[field.name]}
                     options={formOptions}
                     placeholder=""

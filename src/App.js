@@ -54,17 +54,17 @@ export const App = hot(() => {
   const [actionFormFields, setActionFormFields] = useState([]);
   const [actionInitFormParams, setInitActionFormParams] = useState({});
   const [globalActionFormParams, setGlobalActionFormParams] = useState({});
-  // const [isGettingForm, setIsGettingForm] = useState(false)
+  const [isGettingForm, setIsGettingForm] = useState(false)
   const [lookId, setLookId] = useState(null)
   const [needsOauth, setNeedsOauth] = useState(false)
   const [extensionSDK, setExtensionSDK] = useState({})
-  const [formWasRetrieved, setFormWasRetrieved] = useState(false)
+  // const [formWasRetrieved, setFormWasRetrieved] = useState(false)
     
-  const getForm = async (SDK) => {
+  const getForm = async () => {
     // setIsGettingForm(true)
     console.log('getting form', globalActionFormParams)
-    const form = await SDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
-    setFormWasRetrieved(true)
+    const form = await coreSDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
+    // setFormWasRetrieved(true)
     console.log(form.value)
     const formParams = form.value.fields.reduce(
       (obj, item) => ({ ...obj, [item.name]: "" }),
@@ -75,11 +75,11 @@ export const App = hot(() => {
     setInitActionFormParams(formParams);
     setActionFormFields(form.value.fields);
     setNeedsOauth(form.value.fields[0].type === "oauth_link" || form.value.fields[0].type === "oauth_link_google")
-    // setIsGettingForm(false)
+    setIsGettingForm(false)
   };
   
   const handleBuildAudienceClick = async () => {
-    // setIsGettingForm(true)
+    setIsGettingForm(true)
     const createdQuery = await coreSDK.create_query(query)
     // console.log(createdQuery)
     const id = createdQuery.value.id
@@ -94,7 +94,7 @@ export const App = hot(() => {
     const createdLook = await coreSDK.create_look(lookRequestBody)
     // console.log(createdLook)
     setLookId(createdLook.value.id)
-    // await getForm()
+    await getForm()
     setBuildAudienceOpen(!buildAudienceOpen)
     // connect look fields to existing integration form needs?
   }
@@ -179,7 +179,7 @@ export const App = hot(() => {
     setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
     setRequiredFields(tempRequiredFields)
     setUidField(tempUidField)
-    getForm(coreSDK)
+    // getForm(coreSDK)
   }, [activeExplore])
 
   useEffect(() => {
@@ -259,7 +259,7 @@ export const App = hot(() => {
           { size
             ? <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
             : <Button disabled>Build Audience</Button> }
-          {/* { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> } */}
+          { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
         </StyledRightSidebar>
       </Space>
 
