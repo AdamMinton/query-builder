@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import {
   Dialog,
@@ -31,7 +31,9 @@ import {
   ButtonTransparent,
   SpaceVertical,
   Paragraph,
-  Select
+  Select,
+  FieldText,
+  FieldSelect
 } from '@looker/components'
 import constants from '../../constants.js'
 
@@ -39,14 +41,25 @@ import constants from '../../constants.js'
 export const BuildAudienceDialog = ({ 
   isOpen,
   setIsOpen,
-  actionFormFields, 
+  actionFormFields,
   actionInitFormParams,
-  setActionFormParams,
+  setGlobalActionFormParams,
   coreSDK,
   queryId,
-  needsOauth
+  needsOauth,
+  extensionSDK,
+  getForm
 }) => {
 
+  const [localActionFormParams, setLocalActionFormParams] = useState(actionInitFormParams)
+
+  const onChangeFormSelectParams = (key, event, fieldType) => {
+    let params = JSON.parse(JSON.stringify(localActionFormParams));
+    params[key] = fieldType === "text" ? event.target.value : event;
+    setLocalActionFormParams(params);
+    setGlobalActionFormParams(params);
+  };
+  
   const submitForm = async () => {
     const currentTimestamp = new Date(Date.now()).toLocaleString();
     const name = `Sent from Extension - ${currentTimestamp}`;
@@ -89,32 +102,100 @@ export const BuildAudienceDialog = ({
             </DialogContext.Consumer>
           }
         >
-          <SpaceVertical> {/* utilize needsOauth state to direct to login or form */}
-            <Paragraph>Select Destination and Get Form</Paragraph>
-            <Select
-              options={[
-                { value: 'Foo', label: 'Foo' },
-                { value: 'Bar', label: 'Bar' },
-                { value: '123', label: '123' },
-              ]}
-              placeholder="Choose action"
-            />
-          </SpaceVertical>
+        <SpaceVertical> {/* utilize needsOauth state to direct to login or form */}
+          { needsOauth
+            ? <Button
+                key={actionFormFields[0].name}
+                value={localActionFormParams[actionFormFields[0].name]}
+                onClick={() => {
+                  extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
+                  setTimeout(getForm(coreSDK), 3000); // reload form after 3 seconds
+                }}
+              >
+              {actionFormFields[0].label}
+            </Button> 
+            : actionFormFields.map(field => {
+              // render string field(text or textarea)
+              console.log(field)
+              if (field.type === "string" || field.type === "textarea" || field.type === null) {
+                return (
+                  <FieldText
+                    name={field.name}
+                    description={field.description}
+                    required={field.required}
+                    label={field.label}
+                    key={field.name}
+                    onChange={event =>
+                      onChangeFormSelectParams(field.name, event, "text")
+                    }
+                    onBlur={field.interactive ? getForm(coreSDK) : null}
+                    value={localActionFormParams[field.name]}
+                  />
+                );
+      
+                // render select field
+              } else if (field.type === "select") {
+                const formOptions = field.options.map(option => {
+                  return { value: option.name, label: option.label };
+                });
+                console.log('select', formOptions)
+                return (
+                  <FieldSelect
+                    name={field.name}
+                    description={field.description}
+                    required={field.required}
+                    label={field.label}
+                    key={field.name}
+                    onChange={event =>
+                      onChangeFormSelectParams(field.name, event, "select")
+                    }
+                    // onBlur={field.interactive ? getForm(coreSDK) : null}
+                    value={localActionFormParams[field.name]}
+                    options={formOptions}
+                    placeholder=""
+                    isClearable
+                  />
+                );
+              }
+            })
+          }
+        </SpaceVertical>
         </DialogLayout>
       }
     />
   )
+
 }
+  
+          
+          
+          
+          // <Paragraph>Select Destination and Get Form</Paragraph>
+          // <Select
+          //   options={[
+          //     { value: 'Foo', label: 'Foo' },
+          //     { value: 'Bar', label: 'Bar' },
+          //     { value: '123', label: '123' },
+          //   ]}
+          //   placeholder="Choose action"
+          // />
+
+//       }
+//     />
+//   )
+// }
 
 BuildAudienceDialog.propTypes = {
   isOpen: PropTypes.bool,
   setIsOpen: PropTypes.func,
   actionFormFields: PropTypes.array,
   actionInitFormParams: PropTypes.object,
-  setActionFormParams: PropTypes.func,
+  setGlobalActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
   queryId: PropTypes.number,
-  needsOauth: PropTypes.bool
+  needsOauth: PropTypes.bool,
+  extensionSDK: PropTypes.object,
+  getForm: PropTypes.func
 }
 
 /*

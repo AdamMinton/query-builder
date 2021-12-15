@@ -53,14 +53,18 @@ export const App = hot(() => {
   const [size, setSize] = useState('')
   const [actionFormFields, setActionFormFields] = useState([]);
   const [actionInitFormParams, setInitActionFormParams] = useState({});
-  const [actionFormParams, setActionFormParams] = useState({});
+  const [globalActionFormParams, setGlobalActionFormParams] = useState({});
   // const [isGettingForm, setIsGettingForm] = useState(false)
   const [lookId, setLookId] = useState(null)
   const [needsOauth, setNeedsOauth] = useState(false)
+  const [extensionSDK, setExtensionSDK] = useState({})
+  const [formWasRetrieved, setFormWasRetrieved] = useState(false)
     
-  const getForm = async (tempSDK) => {
+  const getForm = async (SDK) => {
     // setIsGettingForm(true)
-    const form = await tempSDK.fetch_integration_form(constants.formDestination, actionFormParams)
+    console.log('getting form', globalActionFormParams)
+    const form = await SDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
+    setFormWasRetrieved(true)
     console.log(form.value)
     const formParams = form.value.fields.reduce(
       (obj, item) => ({ ...obj, [item.name]: "" }),
@@ -96,8 +100,9 @@ export const App = hot(() => {
   }
 
   useEffect(async () => {
-    const extensionSDK = await connectExtensionHost()
-    const tempSDK = LookerExtensionSDK.create40Client(extensionSDK)
+    const tempExtensionSDK = await connectExtensionHost()
+    const tempSDK = LookerExtensionSDK.create40Client(tempExtensionSDK)
+    setExtensionSDK(tempExtensionSDK)
     setCoreSDK(tempSDK)
     // console.log(tempSDK)
     const result = await tempSDK.all_lookml_models('name,explores')
@@ -114,7 +119,7 @@ export const App = hot(() => {
     })
     setModels(tempModels)
     setExplores(tempExplores)
-    await getForm(tempSDK)
+    // !formWasRetrieved && await getForm(tempSDK)
     // maybe fetch_integration_form for the action hub on load?
   }, [])
   
@@ -174,6 +179,7 @@ export const App = hot(() => {
     setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
     setRequiredFields(tempRequiredFields)
     setUidField(tempUidField)
+    getForm(coreSDK)
   }, [activeExplore])
 
   useEffect(() => {
@@ -186,7 +192,7 @@ export const App = hot(() => {
   useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
   useEffect(() => console.log('query', query), [query])
   useEffect(() => console.log('form fields', actionFormFields), [actionFormFields])
-  useEffect(() => console.log('form params', actionFormParams), [actionFormParams])
+  useEffect(() => console.log('form params', globalActionFormParams), [globalActionFormParams])
   useEffect(() => console.log('needs oauth', needsOauth), [needsOauth])
 
   return (
@@ -262,10 +268,12 @@ export const App = hot(() => {
         setIsOpen={setBuildAudienceOpen}
         actionFormFields={actionFormFields}
         actionInitFormParams={actionInitFormParams}
-        setActionFormParams={setActionFormParams}
+        setGlobalActionFormParams={setGlobalActionFormParams}
         coreSDK={coreSDK}
         queryId={query.id}
         needsOauth={needsOauth}
+        extensionSDK={extensionSDK}
+        getForm={getForm}
       />
     </ComponentsProvider>
   )
