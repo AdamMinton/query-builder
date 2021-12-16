@@ -33,7 +33,8 @@ import {
   Paragraph,
   Select,
   FieldText,
-  FieldSelect
+  FieldSelect,
+  ProgressCircular
 } from '@looker/components'
 import constants from '../../constants.js'
 
@@ -48,12 +49,17 @@ export const BuildAudienceDialog = ({
   queryId,
   needsOauth,
   extensionSDK,
-  getForm
+  getForm,
+  isFormWorking,
+  setIsFormWorking
 }) => {
 
   const [localActionFormParams, setLocalActionFormParams] = useState(actionInitFormParams)
 
   const onChangeFormSelectParams = (key, event, fieldType) => {
+    setIsFormWorking(true)
+    console.log('changing', key, event)
+    console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
     params[key] = fieldType === "text" ? event.target.value : event;
     setLocalActionFormParams(params);
@@ -89,6 +95,7 @@ export const BuildAudienceDialog = ({
       content={
         <DialogLayout
           header="Google Ads Customer"
+          footerSecondary={ isFormWorking ? <ProgressCircular /> : null }
           footer={
             <DialogContext.Consumer>
               {({ closeModal }) => (
@@ -195,92 +202,7 @@ BuildAudienceDialog.propTypes = {
   queryId: PropTypes.number,
   needsOauth: PropTypes.bool,
   extensionSDK: PropTypes.object,
-  getForm: PropTypes.func
+  getForm: PropTypes.func,
+  isFormWorking: PropTypes.bool,
+  setIsFormWorking: PropTypes.func
 }
-
-/*
-const [actionFormParams, setActionFormParams] = useState(
-    props.actionInitFormParams
-  );
-
-  const onChangeFormSelectParams = (key: string, e: any, fieldType: string) => {
-    let params = JSON.parse(JSON.stringify(actionFormParams));
-    params[key] = fieldType === "text" ? e.target.value : e;
-    setActionFormParams(params);
-    props.setActionFormParams(params);
-  };
-
-  
-  return (
-    <>
-      {props.actionFormFields.map((f: IDataActionFormField) => {
-        // render string field(text or textarea)
-        console.log(f)
-        if (f.type === "string" || f.type === "textarea" || f.type === null) {
-          return (
-            <FieldText
-              name={f.name}
-              description={f.description}
-              required={f.required}
-              label={f.label}
-              key={f.name}
-              onChange={(e: any) =>
-                onChangeFormSelectParams(f.name!, e, "text")
-              }
-              onBlur={f.interactive ? props.getForm : null}
-              value={actionFormParams[f.name!]}
-            />
-          );
-
-          // render select field
-        } else if (f.type === "select") {
-          const formOptions = f.options!.map((o) => {
-            return { value: o.name, label: o.label };
-          });
-
-          return (
-            <FieldSelect
-              name={f.name}
-              description={f.description}
-              required={f.required}
-              label={f.label}
-              key={f.name}
-              onChange={(e: string) =>
-                onChangeFormSelectParams(f.name!, e, "select")
-              }
-              onBlur={f.interactive ? props.getForm : null}
-              value={actionFormParams[f.name!]}
-              options={formOptions}
-              placeholder=""
-              isClearable
-            />
-          );
-
-          // show login button instead if user is not authenticated
-        } else if (f.type === "oauth_link" || f.type === "oauth_link_google") {
-          return (
-            <Button
-              key={f.name}
-              value={actionFormParams[f.name!]}
-              onClick={() => {
-                extensionSDK.openBrowserWindow(f.oauth_url!, "_blank");
-                setTimeout(props.getForm, 3000); // reload form after 3 seconds
-              }}
-            >
-              {f.label}
-            </Button>
-          );
-        }
-      })}
-
-      {/* hide send button if user is not authenticated */ /*}
-      {props.actionFormFields[0].type === "oauth_link" ||
-      props.actionFormFields[0].type === "oauth_link_google" ? (
-        <Text>{props.actionFormFields[0].description}</Text>
-      ) : (
-        <FlexItem m="u3">
-          <Button onClick={props.sendDestination}>Send to Action</Button>
-        </FlexItem>
-      )}
-    </>
-  );*/

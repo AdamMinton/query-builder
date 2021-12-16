@@ -48,7 +48,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
-  useEffect(() => { console.log(activeFilters) }, [activeFilters])
+  // useEffect(() => { console.log(activeFilters) }, [activeFilters])
 
   return (
     <Box2 m="u3">
