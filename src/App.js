@@ -50,7 +50,7 @@ export const App = hot(() => {
   const [coreSDK, setCoreSDK] = useState({})
   const [query, setQuery] = useState({})
   const [isGettingExplore, setIsGettingExplore] = useState(false)
-  const [size, setSize] = useState('')
+  const [size, setSize] = useState(0)
   const [actionFormFields, setActionFormFields] = useState([]);
   const [actionInitFormParams, setInitActionFormParams] = useState({});
   const [globalActionFormParams, setGlobalActionFormParams] = useState({});
@@ -177,8 +177,13 @@ export const App = hot(() => {
   }, [activeFilters])
 
   useEffect(() => {
-    console.log('form fields', actionFormFields)
-    if (actionFormFields.length === currentNumberOfFields + 1) {
+    console.log('form fields length', actionFormFields.length)
+    console.log('current number', currentNumberOfFields)
+    if (!actionFormFields.length) {
+      setCurrentNumberOfFields(1)
+      return
+    }
+    if (actionFormFields.length !== currentNumberOfFields) {
       console.log('bingo, new field')
       setIsFormWorking(false)
       setCurrentNumberOfFields(actionFormFields.length)
@@ -190,7 +195,7 @@ export const App = hot(() => {
   useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
   useEffect(() => console.log('query', query), [query])
   useEffect(() => console.log('form params', globalActionFormParams), [globalActionFormParams])
-  useEffect(() => console.log('needs oauth', needsOauth), [needsOauth])
+  // useEffect(() => console.log('needs oauth', needsOauth), [needsOauth])
 
   return (
     <ComponentsProvider>
@@ -264,11 +269,11 @@ export const App = hot(() => {
         isOpen={buildAudienceOpen}
         setIsOpen={setBuildAudienceOpen}
         actionFormFields={actionFormFields}
+        setActionFormFields={setActionFormFields}
         actionInitFormParams={actionInitFormParams}
         setGlobalActionFormParams={setGlobalActionFormParams}
         coreSDK={coreSDK}
         queryId={query.id}
-        needsOauth={needsOauth}
         extensionSDK={extensionSDK}
         getForm={getForm}
         isFormWorking={isFormWorking}

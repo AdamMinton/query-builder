@@ -43,11 +43,11 @@ export const BuildAudienceDialog = ({
   isOpen,
   setIsOpen,
   actionFormFields,
+  setActionFormFields,
   actionInitFormParams,
   setGlobalActionFormParams,
   coreSDK,
   queryId,
-  needsOauth,
   extensionSDK,
   getForm,
   isFormWorking,
@@ -94,16 +94,23 @@ export const BuildAudienceDialog = ({
       onClose={() => setIsOpen(false)}
       content={
         <DialogLayout
-          header="Google Ads Customer"
+          header="Google Ads Customer Match"
           footerSecondary={ isFormWorking ? <ProgressCircular /> : null }
           footer={
             <DialogContext.Consumer>
               {({ closeModal }) => (
                 <>
-                  <Button onClick={closeModal}>Build audience</Button>
-                  <ButtonTransparent onClick={closeModal} color="neutral">
-                    Cancel
-                  </ButtonTransparent>
+                  { isFormWorking
+                    ? <Button disabled>Send to Google Ads</Button>
+                    : <Button onClick={closeModal}>Send to Google Ads</Button> 
+                  }
+                  {/* <Button onClick={closeModal}>Build audience</Button> */}
+                  <ButtonTransparent onClick={ () => {
+                    closeModal()
+                    setActionFormFields([])
+                    setLocalActionFormParams({})
+                    setGlobalActionFormParams({})
+                  }} color="neutral">Cancel</ButtonTransparent>
                 </>
               )}
             </DialogContext.Consumer>
@@ -141,30 +148,30 @@ export const BuildAudienceDialog = ({
                 );
       
                 // render select field
-              } else if (field.type === "select") {
-                const formOptions = field.options.map(option => {
-                  return { value: option.name, label: option.label };
-                });
-                console.log('select', formOptions)
-                return (
-                  <FieldSelect
-                    name={field.name}
-                    description={field.description}
-                    required={field.required}
-                    label={field.label}
-                    key={field.name}
-                    onChange={event =>
-                      onChangeFormSelectParams(field.name, event, "select")
-                    }
-                    onBlur={field.interactive ? getForm : null}
-                    value={localActionFormParams[field.name]}
-                    options={formOptions}
-                    placeholder=""
-                    isClearable
-                  />
-                );
-              }
-            })
+            } else if (field.type === "select") {
+              const formOptions = field.options.map(option => {
+                return { value: option.name, label: option.label };
+              });
+              console.log('select', formOptions)
+              return (
+                <FieldSelect
+                  name={field.name}
+                  description={field.description}
+                  required={field.required}
+                  label={field.label}
+                  key={field.name}
+                  onChange={event =>
+                    onChangeFormSelectParams(field.name, event, "select")
+                  }
+                  onBlur={field.interactive ? getForm : null}
+                  value={localActionFormParams[field.name]}
+                  options={formOptions}
+                  placeholder=""
+                  isClearable
+                />
+              );
+            }
+          })
           }
         </SpaceVertical>
         </DialogLayout>
@@ -197,10 +204,10 @@ BuildAudienceDialog.propTypes = {
   setIsOpen: PropTypes.func,
   actionFormFields: PropTypes.array,
   actionInitFormParams: PropTypes.object,
+  setActionFormFields: PropTypes.func,
   setGlobalActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
   queryId: PropTypes.number,
-  needsOauth: PropTypes.bool,
   extensionSDK: PropTypes.object,
   getForm: PropTypes.func,
   isFormWorking: PropTypes.bool,
