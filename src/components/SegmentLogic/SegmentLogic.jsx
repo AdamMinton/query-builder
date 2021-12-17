@@ -26,7 +26,7 @@ import PropTypes from 'prop-types'
 import { StyledItemWrapper } from './SegmentLogic.styles'
 import { FilterItem } from '../Filter/Filter'
 
-export const SegmentLogic = ({ activeFilters, setActiveFilters }) => {
+export const SegmentLogic = ({ activeFilters, setActiveFilters, coreSDK }) => {
   return (
     <div>
       {activeFilters.map((filter) => (
@@ -35,6 +35,7 @@ export const SegmentLogic = ({ activeFilters, setActiveFilters }) => {
             activeFilters={activeFilters}
             filter={filter}
             setActiveFilters={setActiveFilters}
+            coreSDK={coreSDK}
           />
         </StyledItemWrapper>
       ))}
@@ -45,4 +46,5 @@ export const SegmentLogic = ({ activeFilters, setActiveFilters }) => {
 SegmentLogic.propTypes = {
   activeFilters: PropTypes.array,
   setActiveFilters: PropTypes.func,
+  coreSDK: PropTypes.object
 }

@@ -57,7 +57,8 @@ export const BuildAudienceDialog = ({
   const [localActionFormParams, setLocalActionFormParams] = useState(actionInitFormParams)
 
   const onChangeFormSelectParams = (key, event, fieldType) => {
-    setIsFormWorking(true)
+    const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
+    (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
     console.log('changing', key, event)
     console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
@@ -67,22 +68,26 @@ export const BuildAudienceDialog = ({
   };
   
   const submitForm = async () => {
+    setIsFormWorking(true)
     const currentTimestamp = new Date(Date.now()).toLocaleString();
     const name = `Sent from Extension - ${currentTimestamp}`;
     const destination = `looker-integration://${constants.formDestination}`;
 
     try {
-      await coreSDK.scheduled_plan_run_once({
+      const response = await coreSDK.scheduled_plan_run_once({
           name: name,
           query_id: queryId,
           scheduled_plan_destination: [
             {
               type: destination,
               format: "json_detail_lite_stream",
-              parameters: JSON.stringify(actionFormParams),
+              parameters: JSON.stringify(localActionFormParams),
             },
           ],
+          send_all_results: true
         })
+      console.log('action response', response)
+      setIsFormWorking(false)
     } catch (e) {
       console.log(e);
     }
@@ -100,16 +105,17 @@ export const BuildAudienceDialog = ({
             <DialogContext.Consumer>
               {({ closeModal }) => (
                 <>
-                  { isFormWorking
+                  {  isFormWorking
                     ? <Button disabled>Send to Google Ads</Button>
-                    : <Button onClick={closeModal}>Send to Google Ads</Button> 
+                    : <Button onClick={submitForm}>Send to Google Ads</Button> 
                   }
-                  {/* <Button onClick={closeModal}>Build audience</Button> */}
+                  { /* <Button onClick={submitForm}>Build audience</Button>*/ }
                   <ButtonTransparent onClick={ () => {
                     closeModal()
                     setActionFormFields([])
                     setLocalActionFormParams({})
                     setGlobalActionFormParams({})
+                    setIsFormWorking(false)
                   }} color="neutral">Cancel</ButtonTransparent>
                 </>
               )}
@@ -152,7 +158,7 @@ export const BuildAudienceDialog = ({
               const formOptions = field.options.map(option => {
                 return { value: option.name, label: option.label };
               });
-              console.log('select', formOptions)
+              // console.log('select', formOptions)
               return (
                 <FieldSelect
                   name={field.name}

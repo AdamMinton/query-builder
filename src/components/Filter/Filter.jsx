@@ -24,11 +24,11 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Box2 } from '@looker/components'
-import { Filter } from '@looker/filter-components'
+import { Filter, useSuggestable } from '@looker/filter-components'
 import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
 import { StyledItemInner, StyledLabel } from './Filter.styles'
 
-export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
+export const FilterItem = ({ activeFilters, filter, setActiveFilters, coreSDK }) => {
   const [expression, setExpression] = useState('')
 
   const handleChange = (value) => {
@@ -48,6 +48,11 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
+  const { errorMessage, suggestableProps } = useSuggestable({
+    filter,
+    coreSDK,
+  })
+
   // useEffect(() => { console.log(activeFilters) }, [activeFilters])
 
   return (
@@ -62,6 +67,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
             expressionType="string"
             expression={expression}
             onChange={handleChange}
+            {...suggestableProps}
           />
         )}
         {filter.type === 'number' && (
@@ -97,4 +103,5 @@ FilterItem.propTypes = {
   activeFilters: PropTypes.array,
   filter: PropTypes.object,
   setActiveFilters: PropTypes.func,
+  coreSDK: PropTypes.object
 }

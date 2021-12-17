@@ -238,6 +238,7 @@ export const App = hot(() => {
           <SegmentLogic
             activeFilters={activeFilters}
             setActiveFilters={setActiveFilters}
+            coreSDK={coreSDK}
           />
         </Space>
         <StyledRightSidebar
@@ -259,8 +260,11 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
-            ? <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
-            : <Button disabled>Build Audience</Button> }
+            ? <Button onClick={handleBuildAudienceClick}>One-Time Audience Build</Button>
+            : <Button disabled>One-Time Audience Build</Button> }
+          { size
+            ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
+            : <Button disabled>Scheduled Audience Build</Button> }
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
         </StyledRightSidebar>
       </Space>
