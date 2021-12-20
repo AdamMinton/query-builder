@@ -26,6 +26,7 @@ import PropTypes from 'prop-types'
 import { Button, Span, Space, ProgressCircular, MessageBar } from '@looker/components'
 import { Filter } from '@looker/filter-components'
 // import { StyledItemInner, StyledLabel } from './Filter.styles'
+const reader = new FileReader();
 
 export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery, coreSDK, activeModel, activeExplore, size, setSize }) => {
 
@@ -33,6 +34,8 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
   const [isQueryError, setIsQueryError] = useState(false)
 
   const display = new Intl.NumberFormat('en-US', {style: 'decimal'});
+  
+  const sqlAssembler = sql => `WITH query AS (${sql}) SELECT COUNT (DISTINCT ${uidField.replaceAll('.','_')}) AS size FROM query`
   
   const checkAudienceSize = async () => {
     setIsCalculating(true)
@@ -50,14 +53,17 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
       body.fields = body.fields.concat(requiredFields[requirement])
     }
     setQuery(body)
-    // console.log(body)
-    const result = await coreSDK.run_inline_query({ result_format: 'json', body })
-    // console.log(result)
+    const result = await coreSDK.run_inline_query({ result_format: 'sql', body })
+    const rawSql = await result.value.text()
+    const sql = sqlAssembler(rawSql)
+    const query = await coreSDK.create_sql_query({ model_name: activeModel, sql })
+    const queryResult = await coreSDK.run_sql_query(query.value.slug, 'json')
+    console.log(queryResult)
     setIsCalculating(false)
-    if (result.value.length === 1 && Object.keys(result.value[0])[0] === 'looker_error') {
+    if (!queryResult.ok) {
       setIsQueryError(true)
     } else {
-      setSize(result.value.length)
+      setSize(queryResult.value[0].size)
     }
   }
 
