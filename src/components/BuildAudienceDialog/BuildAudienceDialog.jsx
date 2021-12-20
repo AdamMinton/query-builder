@@ -34,7 +34,8 @@ import {
   Select,
   FieldText,
   FieldSelect,
-  ProgressCircular
+  ProgressCircular,
+  Badge
 } from '@looker/components'
 import constants from '../../constants.js'
 
@@ -51,7 +52,9 @@ export const BuildAudienceDialog = ({
   extensionSDK,
   getForm,
   isFormWorking,
-  setIsFormWorking
+  setIsFormWorking,
+  wasActionSuccessful,
+  setWasActionSuccessful
 }) => {
 
   const [localActionFormParams, setLocalActionFormParams] = useState(actionInitFormParams)
@@ -88,6 +91,11 @@ export const BuildAudienceDialog = ({
         })
       console.log('action response', response)
       setIsFormWorking(false)
+      if (response.ok) {
+        setWasActionSuccessful('yes')
+      } else {
+        setWasActionSuccessful('no')
+      }
     } catch (e) {
       console.log(e);
     }
@@ -100,14 +108,22 @@ export const BuildAudienceDialog = ({
       content={
         <DialogLayout
           header="Google Ads Customer Match"
-          footerSecondary={ isFormWorking ? <ProgressCircular /> : null }
+          footerSecondary={
+            wasActionSuccessful === ''
+              ? isFormWorking
+                ? <ProgressCircular />
+                : null
+              : wasActionSuccessful === 'yes'
+                ? <Badge intent="positive" size="large">Success!</Badge>
+                : <Badge intent="negative" size="large">Sorry, Please Try Again</Badge>
+          }
           footer={
             <DialogContext.Consumer>
               {({ closeModal }) => (
                 <>
-                  {  isFormWorking
-                    ? <Button disabled>Send to Google Ads</Button>
-                    : <Button onClick={submitForm}>Send to Google Ads</Button> 
+                  {  (isFormWorking || wasActionSuccessful === 'yes')
+                    ? <Button disabled>Build Once</Button>
+                    : <Button onClick={submitForm}>Build Once</Button> 
                   }
                   { /* <Button onClick={submitForm}>Build audience</Button>*/ }
                   <ButtonTransparent onClick={ () => {
@@ -116,7 +132,8 @@ export const BuildAudienceDialog = ({
                     setLocalActionFormParams({})
                     setGlobalActionFormParams({})
                     setIsFormWorking(false)
-                  }} color="neutral">Cancel</ButtonTransparent>
+                    setWasActionSuccessful('')
+                  }} color="neutral">{wasActionSuccessful === 'yes' ? 'Close' : 'Cancel'}</ButtonTransparent>
                 </>
               )}
             </DialogContext.Consumer>
@@ -217,5 +234,7 @@ BuildAudienceDialog.propTypes = {
   extensionSDK: PropTypes.object,
   getForm: PropTypes.func,
   isFormWorking: PropTypes.bool,
-  setIsFormWorking: PropTypes.func
+  setIsFormWorking: PropTypes.func,
+  wasActionSuccessful: PropTypes.string,
+  setWasActionSuccessful: PropTypes.func
 }

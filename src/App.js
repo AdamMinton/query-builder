@@ -60,6 +60,7 @@ export const App = hot(() => {
   const [extensionSDK, setExtensionSDK] = useState({})
   const [isFormWorking, setIsFormWorking] = useState(false)
   const [currentNumberOfFields, setCurrentNumberOfFields] = useState(1)
+  const [wasActionSuccessful, setWasActionSuccessful] = useState('')
     
   const getForm = async () => {
     console.log('getting form', globalActionFormParams)
@@ -115,6 +116,7 @@ export const App = hot(() => {
   
   useEffect(async () => {
     activeExplore !== '' && setIsGettingExplore(true)
+    setExploreIsValid(null)
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
     let isRequiredTagPresent = false
     const fields = result.value.fields
@@ -282,6 +284,8 @@ export const App = hot(() => {
         getForm={getForm}
         isFormWorking={isFormWorking}
         setIsFormWorking={setIsFormWorking}
+        wasActionSuccessful={wasActionSuccessful}
+        setWasActionSuccessful={setWasActionSuccessful}
       />
     </ComponentsProvider>
   )
