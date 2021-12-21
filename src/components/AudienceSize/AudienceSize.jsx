@@ -35,7 +35,7 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
 
   const display = new Intl.NumberFormat('en-US', {style: 'decimal'});
   
-  const sqlAssembler = sql => `WITH query AS (${sql}) SELECT COUNT (DISTINCT ${uidField.replaceAll('.','_')}) AS size FROM query`
+  const sqlAssembler = sql => `WITH query AS (${sql}\n) SELECT COUNT (DISTINCT ${uidField.replaceAll('.','_')}) AS size FROM query`
   
   const checkAudienceSize = async () => {
     setIsCalculating(true)
@@ -55,7 +55,7 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
     setQuery(body)
     const result = await coreSDK.run_inline_query({ result_format: 'sql', body })
     const rawSql = await result.value.text()
-    const sql = sqlAssembler(rawSql)
+    const sql = sqlAssembler(rawSql.replaceAll('LIMIT','--LIMIT'))
     const query = await coreSDK.create_sql_query({ model_name: activeModel, sql })
     const queryResult = await coreSDK.run_sql_query(query.value.slug, 'json')
     console.log(queryResult)

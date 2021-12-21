@@ -196,7 +196,10 @@ export const App = hot(() => {
   useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
   useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
   useEffect(() => console.log('query', query), [query])
-  useEffect(() => console.log('form params', globalActionFormParams), [globalActionFormParams])
+  useEffect(() => {
+    console.log('form params', globalActionFormParams)
+    getForm()
+  }, [globalActionFormParams])
   // useEffect(() => console.log('needs oauth', needsOauth), [needsOauth])
 
   return (

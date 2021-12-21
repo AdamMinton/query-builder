@@ -141,6 +141,7 @@ export const BuildAudienceDialog = ({
         >
         <SpaceVertical>
           { actionFormFields.map(field => {
+            // console.log('FIELD', field)
             if (field.type === "oauth_link" || field.type === "oauth_link_google") {
               return (
                 <Button
@@ -186,7 +187,6 @@ export const BuildAudienceDialog = ({
                   onChange={event =>
                     onChangeFormSelectParams(field.name, event, "select")
                   }
-                  onBlur={field.interactive ? getForm : null}
                   value={localActionFormParams[field.name]}
                   options={formOptions}
                   placeholder=""
