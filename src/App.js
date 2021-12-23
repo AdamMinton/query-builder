@@ -31,7 +31,6 @@ import { Sidebar } from './components/Sidebar/Sidebar'
 import { AudienceSize } from './components/AudienceSize/AudienceSize'
 import { StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
-import mockData from './mock-data.json'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 import constants from './constants.js'
 
@@ -56,13 +55,13 @@ export const App = hot(() => {
   const [globalActionFormParams, setGlobalActionFormParams] = useState({});
   const [isGettingForm, setIsGettingForm] = useState(false)
   const [lookId, setLookId] = useState(null)
-  const [needsOauth, setNeedsOauth] = useState(false)
   const [extensionSDK, setExtensionSDK] = useState({})
   const [isFormWorking, setIsFormWorking] = useState(false)
   const [currentNumberOfFields, setCurrentNumberOfFields] = useState(1)
   const [wasActionSuccessful, setWasActionSuccessful] = useState('')
   const [needsLogin, setNeedsLogin] = useState(false)
-    
+  
+  // retrives action integration form from Looker API
   const getForm = async () => {
     console.log('getting form', globalActionFormParams)
     const form = await coreSDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
@@ -75,11 +74,17 @@ export const App = hot(() => {
     setIsGettingForm(false)
   };
   
+  // click handler for building audiences
   const handleBuildAudienceClick = async () => {
     setIsGettingForm(true)
+    await getForm()
+
+    // query ID retrieved from Looker API to provide to action when requesting a one-time audience build
     const createdQuery = await coreSDK.create_query(query)
     const id = createdQuery.value.id
     setQuery({...query, id})
+
+    // query ID turned into look ID via Looker API to provide to action when requesting a scheduled audience build
     const lookRequestBody = {
       "title": `Google Ads Customer Match Extension|${activeModel}::${activeExplore}|${new Date().toUTCString()}`,
       "is_run_on_load": false,
@@ -90,7 +95,7 @@ export const App = hot(() => {
     const createdLook = await coreSDK.create_look(lookRequestBody)
     // console.log(createdLook)
     setLookId(createdLook.value.id)
-    await getForm()
+
     // if (!actionFormFields.length) {
     //   console.log('waiting on them fields')
     //   const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
@@ -100,14 +105,18 @@ export const App = hot(() => {
     //     await getForm()
     //   }
     // }
-    setBuildAudienceOpen(!buildAudienceOpen)
+    setBuildAudienceOpen(true)
   }
 
+  // steps taken on page load
   useEffect(async () => {
+    // connection made to Looker host and extension and core SDKs captured in state
     const tempExtensionSDK = await connectExtensionHost()
     const tempSDK = LookerExtensionSDK.create40Client(tempExtensionSDK)
     setExtensionSDK(tempExtensionSDK)
     setCoreSDK(tempSDK)
+
+    // models and explores pre-loaded into state
     const result = await tempSDK.all_lookml_models('name,explores')
     let tempModels = []
     let tempExplores = {}
@@ -124,15 +133,20 @@ export const App = hot(() => {
     setExplores(tempExplores)
   }, [])
   
+  // steps taken when an explore is chosen
   useEffect(async () => {
     activeExplore !== '' && setIsGettingExplore(true)
     setExploreIsValid(null)
+
+    // explore details retrieved via API
     const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
     let isRequiredTagPresent = false
     const fields = result.value.fields
     let tempObj = {}
     let tempRequiredFields = {}
     let tempUidField = []
+
+    // explore scopes turned into top level categories for filter menu
     result.value.scopes.forEach(scope => {
       tempObj[scope] = { 
         id: scope,
@@ -140,8 +154,12 @@ export const App = hot(() => {
         items: []
       }
     })
+
+    // dimensions and measures sorted by scope into filter menu
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
+        
+        // dimensions and measures filtered to match aproved data types in constants file
         if (constants.typeMap.hasOwnProperty(field.type)) {
           tempObj[field.scope].label = field.view_label
           tempObj[field.scope].items.push({
@@ -149,11 +167,15 @@ export const App = hot(() => {
             label: field.label_short,
             type: constants.typeMap[field.type]
           })
+
+          // check to capture the presence of a designated UID field
           for (let i=0; i<field.tags.length; i++) {
             if (field.tags[i] === constants.uidTag) {
               console.log('uid', field.name)
               tempUidField.push(field.name)
             }
+
+            // check to capture the presence of designated PII fields required by customer match action
             if (constants.googleAdsTags.includes(field.tags[i])) {
               const coreString = field.tags[i].split('-')[2]
               if (field.name.includes(coreString)) {
@@ -177,26 +199,31 @@ export const App = hot(() => {
     }
     setIsGettingExplore(false)
     setFilters(filterObj)
+    
+    // check for presence of single UID field and a minimum of one PII field
     setExploreIsValid(tempUidField.length === 1 && isRequiredTagPresent)
+
     setRequiredFields(tempRequiredFields)
     setUidField(tempUidField)
   }, [activeExplore])
 
+  // captures filter size, which is used in conditional rendering
   useEffect(() => {
     if (!activeFilters.length) {
       setSize(0)
     }
   }, [activeFilters])
 
+  // checks for presence of new form fields to disable spinner when new fields appear
   useEffect(() => {
-    console.log('form fields length', actionFormFields.length)
-    console.log('current number', currentNumberOfFields)
+    // console.log('form fields length', actionFormFields.length)
+    // console.log('current number', currentNumberOfFields)
     if (!actionFormFields.length) {
       setCurrentNumberOfFields(1)
       return
     }
     if (actionFormFields.length !== currentNumberOfFields) {
-      console.log('bingo, new field')
+      // console.log('bingo, new field')
       setIsFormWorking(false)
       setCurrentNumberOfFields(actionFormFields.length)
     }
@@ -206,10 +233,13 @@ export const App = hot(() => {
   // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
   // useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
   // useEffect(() => console.log('query', query), [query])
+  
+  // why did I do this?
   useEffect(() => {
     console.log('form params', globalActionFormParams)
     getForm()
   }, [globalActionFormParams])
+
   useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
   useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
 

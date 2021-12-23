@@ -1,5 +1,10 @@
 module.exports = {
+  
+  // Tag used to indicate the Looker field designated as the UID
   uidTag: 'google-ads-uid',
+  
+  // Tags used to indicate Looker fields that match the fields utilized by the Customer Match Action
+  // See https://help.looker.com/hc/en-us/articles/4403987588371 for more details
   googleAdsTags: [
     'google-ads-idfa',
     'google-ads-aaid',
@@ -13,6 +18,8 @@ module.exports = {
     'google-ads-country',
     'google-ads-postal'
   ],
+
+  // List of permissable data types for fields, including types that need to be coerced for filtering
   typeMap: {
     number: 'number',
     string: 'string',
@@ -33,5 +40,7 @@ module.exports = {
     average: 'number',
     sum: 'number'
   },
+
+  // Looker API destination for Customer Match action
   formDestination: '1::google_ads_customer_match'
 }

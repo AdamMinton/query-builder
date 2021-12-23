@@ -21,22 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Button, Span, Space, ProgressCircular, MessageBar } from '@looker/components'
-import { Filter } from '@looker/filter-components'
-// import { StyledItemInner, StyledLabel } from './Filter.styles'
-const reader = new FileReader();
 
 export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery, coreSDK, activeModel, activeExplore, size, setSize }) => {
 
   const [isCalculating, setIsCalculating] = useState(false)
   const [isQueryError, setIsQueryError] = useState(false)
 
+  // formats audience size display
   const display = new Intl.NumberFormat('en-US', {style: 'decimal'});
   
+  // helper function that wraps SQL returned by Looker API in order to perform COUNT DISTINCT
+  // periods in the UID field are replaced with underscores to match Looker API behavior
   const sqlAssembler = sql => `WITH query AS (${sql}\n) SELECT COUNT (DISTINCT ${uidField.replaceAll('.','_')}) AS size FROM query`
   
+  // calculates audience size based on filters chosen
   const checkAudienceSize = async () => {
     setIsCalculating(true)
     setIsQueryError(false)
@@ -46,19 +47,27 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
       filters: {},
       fields: [uidField]
     }
+    
+    // organizes filters into structure required by Looker API
     activeFilters.forEach(filter => {
       body.filters[filter.id] = filter.expression
     })
     for (let requirement in requiredFields) {
       body.fields = body.fields.concat(requiredFields[requirement])
     }
+
+    // stores request body in state so it can be referenced by Looker API when proceeding with action form
     setQuery(body)
+
+    // retrieves SQL version of filters from Looker API, comments out LIMIT clause, and wraps it for COUNT DISTINCT
     const result = await coreSDK.run_inline_query({ result_format: 'sql', body })
     const rawSql = await result.value.text()
     const sql = sqlAssembler(rawSql.replaceAll('LIMIT','--LIMIT'))
+
+    // new SQL query created and executed via Looker API
     const query = await coreSDK.create_sql_query({ model_name: activeModel, sql })
     const queryResult = await coreSDK.run_sql_query(query.value.slug, 'json')
-    console.log(queryResult)
+    // console.log(queryResult)
     setIsCalculating(false)
     if (!queryResult.ok) {
       setIsQueryError(true)

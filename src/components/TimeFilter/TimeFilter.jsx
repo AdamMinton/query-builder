@@ -34,12 +34,14 @@ export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
   let lastWeek = new Date(today)
   lastWeek.setDate(lastWeek.getDate() - 7)
 
+  // Preset list of date options from Looker
   const dateOptions = [
     { value: 'relative_timeframes', label: "Relative Timeframe"},
     { value: 'day_range_picker', label: "Date Range"},
     { value: 'day_picker', label: "Individual Day"}
   ]
 
+  // Default values for each type of date option
   const defaultExpressions = {
     relative_timeframes: "7 day",
     day_range_picker: `${lastWeek.toISOString().slice(0, 10)} to ${today.toISOString().slice(0, 10)}`,
@@ -63,6 +65,7 @@ export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
+  // adjusts date expression based on preset date option type
   useEffect(() => { setExpression(defaultExpressions[dateOption.type]) }, [dateOption])
 
   return (
