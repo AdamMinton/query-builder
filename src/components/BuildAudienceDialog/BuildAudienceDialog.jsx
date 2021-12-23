@@ -45,7 +45,7 @@ export const BuildAudienceDialog = ({
   setIsOpen,
   actionFormFields,
   setActionFormFields,
-  actionInitFormParams,
+  initActionFormParams,
   setGlobalActionFormParams,
   coreSDK,
   queryId,
@@ -54,11 +54,28 @@ export const BuildAudienceDialog = ({
   isFormWorking,
   setIsFormWorking,
   wasActionSuccessful,
-  setWasActionSuccessful
+  setWasActionSuccessful,
+  needsLogin,
+  setNeedsLogin
 }) => {
 
-  const [localActionFormParams, setLocalActionFormParams] = useState(actionInitFormParams)
+  const [localActionFormParams, setLocalActionFormParams] = useState(initActionFormParams)
 
+  const checkLoginStatus = async () => {
+    const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
+    return form.value.fields[0].name !== 'login'
+  }
+
+  const loginManager = async () => {
+    extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
+    let loggedIn = false
+    while (!loggedIn) {
+      setTimeout(() => {console.log('Logged in yet?', loggedIn)}, 1000)
+      loggedIn = await checkLoginStatus()
+    }
+    getForm()
+  }
+  
   const onChangeFormSelectParams = (key, event, fieldType) => {
     const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
     (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
@@ -121,7 +138,7 @@ export const BuildAudienceDialog = ({
             <DialogContext.Consumer>
               {({ closeModal }) => (
                 <>
-                  {  (isFormWorking || wasActionSuccessful === 'yes')
+                  {  (isFormWorking || wasActionSuccessful === 'yes' || needsLogin)
                     ? <Button disabled>Build Once</Button>
                     : <Button onClick={submitForm}>Build Once</Button> 
                   }
@@ -141,38 +158,40 @@ export const BuildAudienceDialog = ({
         >
         <SpaceVertical>
           { actionFormFields.map(field => {
-            // console.log('FIELD', field)
+            console.log('FIELD', field)
             if (field.type === "oauth_link" || field.type === "oauth_link_google") {
+              setNeedsLogin(true)
               return (
-                <Button
-                  key={actionFormFields[0].name}
-                  value={localActionFormParams[actionFormFields[0].name]}
-                  onClick={() => {
-                    extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
-                    setTimeout(getForm, 3000); // reload form after 3 seconds
-                  }}
-                >
-                  {actionFormFields[0].label}
-                </Button>
+                <>
+                  <span>Please login to your Google account to continue.</span>
+                  <Button
+                    key={actionFormFields[0].name}
+                    value={localActionFormParams[actionFormFields[0].name]}
+                    onClick={loginManager}
+                  >
+                    {actionFormFields[0].label}
+                  </Button>
+                </>
               )
             } else if (field.type === "string" || field.type === "textarea" || field.type === null) {
-                return (
-                  <FieldText
-                    name={field.name}
-                    description={field.description}
-                    required={field.required}
-                    label={field.label}
-                    key={field.name}
-                    onChange={event =>
-                      onChangeFormSelectParams(field.name, event, "text")
-                    }
-                    onBlur={field.interactive ? getForm : null}
-                    value={localActionFormParams[field.name]}
-                  />
-                );
+              needsLogin && setNeedsLogin(false)
+              return (
+                <FieldText
+                  name={field.name}
+                  description={field.description}
+                  required={field.required}
+                  label={field.label}
+                  key={field.name}
+                  onChange={event =>
+                    onChangeFormSelectParams(field.name, event, "text")
+                  }
+                  value={localActionFormParams[field.name]}
+                />
+              );
       
                 // render select field
             } else if (field.type === "select") {
+              needsLogin && setNeedsLogin(false)
               const formOptions = field.options.map(option => {
                 return { value: option.name, label: option.label };
               });
@@ -203,30 +222,12 @@ export const BuildAudienceDialog = ({
   )
 
 }
-  
-          
-          
-          
-          // <Paragraph>Select Destination and Get Form</Paragraph>
-          // <Select
-          //   options={[
-          //     { value: 'Foo', label: 'Foo' },
-          //     { value: 'Bar', label: 'Bar' },
-          //     { value: '123', label: '123' },
-          //   ]}
-          //   placeholder="Choose action"
-          // />
-
-//       }
-//     />
-//   )
-// }
 
 BuildAudienceDialog.propTypes = {
   isOpen: PropTypes.bool,
   setIsOpen: PropTypes.func,
   actionFormFields: PropTypes.array,
-  actionInitFormParams: PropTypes.object,
+  initActionFormParams: PropTypes.object,
   setActionFormFields: PropTypes.func,
   setGlobalActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
@@ -236,5 +237,32 @@ BuildAudienceDialog.propTypes = {
   isFormWorking: PropTypes.bool,
   setIsFormWorking: PropTypes.func,
   wasActionSuccessful: PropTypes.string,
-  setWasActionSuccessful: PropTypes.func
+  setWasActionSuccessful: PropTypes.func,
+  needsLogin: PropTypes.bool,
+  setNeedsLogin: PropTypes.func
 }
+/*
+{
+  "name": "login",
+  "label": "Received error code 400 from the API, so your credentials have been discarded. Please reauthenticate and try again.",
+  "description": "In order to send to this destination, you will need to log in once to your Google account.",
+  "type": "oauth_link_google",
+  "default": null,
+  "oauth_url": "https://actions.looker.com/actions/google_ads_customer_match/oauth?state=10430227kFf1kIyCYKKVTciKtqfxgM4Kgjxi7En1X9un3qoXLRSw3ijU5d8Vp90N_IlLp_SEjvNnQXmSeT5fYc9qmQAR0iLQggOeBgW45sMFABYZpzzVwk86z_LoLY_qeshBwx8ihhvgePz1YosA4kN51MkLFJC1IzySMOIRUIddcIezjybUR-WyEQj1JH-KZZsYadcM7XMDPLenYpD54gl1vvm0",
+  "interactive": false,
+  "required": false,
+  "options": null
+}
+
+{
+  "name": "login",
+  "label": "Log in",
+  "description": "In order to send to this destination, you will need to log in once to your Google account.",
+  "type": "oauth_link_google",
+  "default": null,
+  "oauth_url": "https://actions.looker.com/actions/google_ads_customer_match/oauth?state=1043022bHH8OzZbRYpkFsF7QsLDUAabK9WJnroDsDDrRqrC-283vEaaSNGOTJXXCxOhyawLUEbXFvTpqDR1577pMBrFYsofo3dqRaqq-qSABDCcnEnVCoFS4p_oU-lgTgNI38YKFzMvNGaC1PVbg_S8oWP1mXZFvT82BiXSNKKB0AKKmh7VBliTlqO4IAeS63KFCO4yHA6J5ogDK228NHZ9a009p",
+  "interactive": false,
+  "required": false,
+  "options": null
+}
+*/

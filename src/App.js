@@ -52,7 +52,7 @@ export const App = hot(() => {
   const [isGettingExplore, setIsGettingExplore] = useState(false)
   const [size, setSize] = useState(0)
   const [actionFormFields, setActionFormFields] = useState([]);
-  const [actionInitFormParams, setInitActionFormParams] = useState({});
+  const [initActionFormParams, setInitActionFormParams] = useState({});
   const [globalActionFormParams, setGlobalActionFormParams] = useState({});
   const [isGettingForm, setIsGettingForm] = useState(false)
   const [lookId, setLookId] = useState(null)
@@ -61,6 +61,7 @@ export const App = hot(() => {
   const [isFormWorking, setIsFormWorking] = useState(false)
   const [currentNumberOfFields, setCurrentNumberOfFields] = useState(1)
   const [wasActionSuccessful, setWasActionSuccessful] = useState('')
+  const [needsLogin, setNeedsLogin] = useState(false)
     
   const getForm = async () => {
     console.log('getting form', globalActionFormParams)
@@ -90,6 +91,15 @@ export const App = hot(() => {
     // console.log(createdLook)
     setLookId(createdLook.value.id)
     await getForm()
+    // if (!actionFormFields.length) {
+    //   console.log('waiting on them fields')
+    //   const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
+    //   const initialField = form.value.fields[0]
+    //   if ((initialField.type === "oauth_link" || initialField.type === "oauth_link_google") && initialField.label !== "Log in") {
+    //     console.log('trouble afoot')
+    //     await getForm()
+    //   }
+    // }
     setBuildAudienceOpen(!buildAudienceOpen)
   }
 
@@ -192,15 +202,16 @@ export const App = hot(() => {
     }
   }, [actionFormFields])
 
-  useEffect(() => console.log('uid state', uidField), [uidField])
-  useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
-  useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
-  useEffect(() => console.log('query', query), [query])
+  // useEffect(() => console.log('uid state', uidField), [uidField])
+  // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
+  // useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
+  // useEffect(() => console.log('query', query), [query])
   useEffect(() => {
     console.log('form params', globalActionFormParams)
     getForm()
   }, [globalActionFormParams])
-  // useEffect(() => console.log('needs oauth', needsOauth), [needsOauth])
+  useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
+  useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
 
   return (
     <ComponentsProvider>
@@ -279,7 +290,7 @@ export const App = hot(() => {
         setIsOpen={setBuildAudienceOpen}
         actionFormFields={actionFormFields}
         setActionFormFields={setActionFormFields}
-        actionInitFormParams={actionInitFormParams}
+        initActionFormParams={initActionFormParams}
         setGlobalActionFormParams={setGlobalActionFormParams}
         coreSDK={coreSDK}
         queryId={query.id}
@@ -289,6 +300,8 @@ export const App = hot(() => {
         setIsFormWorking={setIsFormWorking}
         wasActionSuccessful={wasActionSuccessful}
         setWasActionSuccessful={setWasActionSuccessful}
+        needsLogin={needsLogin}
+        setNeedsLogin={setNeedsLogin}
       />
     </ComponentsProvider>
   )
