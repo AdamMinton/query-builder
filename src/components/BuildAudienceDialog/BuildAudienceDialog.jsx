@@ -30,8 +30,6 @@ import {
   Button,
   ButtonTransparent,
   SpaceVertical,
-  Paragraph,
-  Select,
   FieldText,
   FieldSelect,
   ProgressCircular,
@@ -61,11 +59,13 @@ export const BuildAudienceDialog = ({
 
   const [localActionFormParams, setLocalActionFormParams] = useState(initActionFormParams)
 
+  // checks login status to see if oauth has been achieved or not
   const checkLoginStatus = async () => {
     const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
     return form.value.fields[0].name !== 'login'
   }
 
+  // function that runs when user is not authorized and oauth is required
   const loginManager = async () => {
     extensionSDK.openBrowserWindow(actionFormFields[0].oauth_url, "_blank");
     let loggedIn = false
@@ -76,17 +76,19 @@ export const BuildAudienceDialog = ({
     getForm()
   }
   
+  // function that runs when choices are made in action form fields
   const onChangeFormSelectParams = (key, event, fieldType) => {
     const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
     (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
-    console.log('changing', key, event)
-    console.log('local action params', localActionFormParams)
+    // console.log('changing', key, event)
+    // console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
     params[key] = fieldType === "text" ? event.target.value : event;
     setLocalActionFormParams(params);
     setGlobalActionFormParams(params);
   };
   
+  // sends audience to Google Ads as a one-time build
   const submitForm = async () => {
     setIsFormWorking(true)
     const currentTimestamp = new Date(Date.now()).toLocaleString();
@@ -188,8 +190,6 @@ export const BuildAudienceDialog = ({
                   value={localActionFormParams[field.name]}
                 />
               );
-      
-                // render select field
             } else if (field.type === "select") {
               needsLogin && setNeedsLogin(false)
               const formOptions = field.options.map(option => {
@@ -242,6 +242,8 @@ BuildAudienceDialog.propTypes = {
   setNeedsLogin: PropTypes.func
 }
 /*
+
+Leaving these here for future refactoring efforts.  Generally the second response is what Looker sends when oauth is required but occasionally it's the first.
 {
   "name": "login",
   "label": "Received error code 400 from the API, so your credentials have been discarded. Please reauthenticate and try again.",
