@@ -7,7 +7,7 @@ project_name: "customer_match_action_tool"
 #   project: "name_of_other_project"
 # }
 application: customer-match-tool {
-  label: "Looker demo"
+  label: "Customer Match Tool"
   # file: "bundle.js"
   url: "http://localhost:8080/bundle.js"
   entitlements: {
