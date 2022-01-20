@@ -63,10 +63,16 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
     const result = await coreSDK.run_inline_query({ result_format: 'sql', body })
     const rawSql = await result.value.text()
     const sql = sqlAssembler(rawSql.replaceAll('LIMIT','--LIMIT'))
+    let queryResult
 
     // new SQL query created and executed via Looker API
-    const query = await coreSDK.create_sql_query({ model_name: activeModel, sql })
-    const queryResult = await coreSDK.run_sql_query(query.value.slug, 'json')
+    try {
+      const query = await coreSDK.create_sql_query({ model_name: activeModel, sql })
+      queryResult = await coreSDK.run_sql_query(query.value.slug, 'json')
+    } catch (e) {
+      console.log('Querying Error', e)
+      setIsQueryError(true)
+    }
     // console.log(queryResult)
     setIsCalculating(false)
     if (!queryResult.ok) {

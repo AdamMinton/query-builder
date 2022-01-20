@@ -60,52 +60,68 @@ export const App = hot(() => {
   const [currentNumberOfFields, setCurrentNumberOfFields] = useState(1)
   const [wasActionSuccessful, setWasActionSuccessful] = useState('')
   const [needsLogin, setNeedsLogin] = useState(false)
+  const [errorGettingForm, setErrorGettingForm] = useState(false)
+  const [errorGettingExplore, setErrorGettingExplore] = useState(false)
   
   // retrives action integration form from Looker API
   const getForm = async () => {
     console.log('getting form', globalActionFormParams)
-    const form = await coreSDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
-    const formParams = form.value.fields.reduce(
-      (obj, item) => ({ ...obj, [item.name]: "" }),
-      {}
-    );
-    setInitActionFormParams(formParams);
-    setActionFormFields(form.value.fields);
-    setIsGettingForm(false)
+    try {
+      const form = await coreSDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
+      const formParams = form.value.fields.reduce(
+        (obj, item) => ({ ...obj, [item.name]: "" }),
+        {}
+      );
+      setInitActionFormParams(formParams);
+      setActionFormFields(form.value.fields);
+      setIsGettingForm(false)
+      return true
+    } catch (e) {
+      console.log('Error getting action form', e)
+      return false
+    }
   };
   
   // click handler for building audiences
   const handleBuildAudienceClick = async () => {
+    setErrorGettingForm(false)
     setIsGettingForm(true)
-    await getForm()
-
-    // query ID retrieved from Looker API to provide to action when requesting a one-time audience build
-    const createdQuery = await coreSDK.create_query(query)
-    const id = createdQuery.value.id
-    setQuery({...query, id})
-
-    // query ID turned into look ID via Looker API to provide to action when requesting a scheduled audience build
-    const lookRequestBody = {
-      "title": `Google Ads Customer Match Extension|${activeModel}::${activeExplore}|${new Date().toUTCString()}`,
-      "is_run_on_load": false,
-      "public": false,
-      "query_id": id,
-      "folder_id": 1 // may need to dynamically determine ID of "Shared" folder?
+    let doWeHaveTheForm = false
+    while (!doWeHaveTheForm) {
+      doWeHaveTheForm = await getForm()
     }
-    const createdLook = await coreSDK.create_look(lookRequestBody)
-    // console.log(createdLook)
-    setLookId(createdLook.value.id)
+    try {
+      // query ID retrieved from Looker API to provide to action when requesting a one-time audience build
+      const createdQuery = await coreSDK.create_query(query)
+      const id = createdQuery.value.id
+      setQuery({...query, id})
 
-    // if (!actionFormFields.length) {
-    //   console.log('waiting on them fields')
-    //   const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
-    //   const initialField = form.value.fields[0]
-    //   if ((initialField.type === "oauth_link" || initialField.type === "oauth_link_google") && initialField.label !== "Log in") {
-    //     console.log('trouble afoot')
-    //     await getForm()
-    //   }
-    // }
-    setBuildAudienceOpen(true)
+      // query ID turned into look ID via Looker API to provide to action when requesting a scheduled audience build
+      const lookRequestBody = {
+        "title": `Google Ads Customer Match Extension|${activeModel}::${activeExplore}|${new Date().toUTCString()}`,
+        "is_run_on_load": false,
+        "public": false,
+        "query_id": id,
+        "folder_id": 1 // may need to dynamically determine ID of "Shared" folder?
+      }
+      const createdLook = await coreSDK.create_look(lookRequestBody)
+      // console.log(createdLook)
+      setLookId(createdLook.value.id)
+
+      // if (!actionFormFields.length) {
+      //   console.log('waiting on them fields')
+      //   const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
+      //   const initialField = form.value.fields[0]
+      //   if ((initialField.type === "oauth_link" || initialField.type === "oauth_link_google") && initialField.label !== "Log in") {
+      //     console.log('trouble afoot')
+      //     await getForm()
+      //   }
+      // }
+      setBuildAudienceOpen(true)
+    } catch (e) {
+      console.log('Error with build audience form', e)
+      setErrorGettingForm(true)
+    }
   }
 
   // steps taken on page load
@@ -117,7 +133,12 @@ export const App = hot(() => {
     setCoreSDK(tempSDK)
 
     // models and explores pre-loaded into state
-    const result = await tempSDK.all_lookml_models('name,explores')
+    let doWeHaveTheModels = false
+    let result
+    while (!doWeHaveTheModels) {
+      result = await tempSDK.all_lookml_models('name,explores')
+      doWeHaveTheModels = !!result
+    }
     let tempModels = []
     let tempExplores = {}
     result.value.forEach(model => {
@@ -135,11 +156,22 @@ export const App = hot(() => {
   
   // steps taken when an explore is chosen
   useEffect(async () => {
+    if (!Object.getPrototypeOf(coreSDK).hasOwnProperty('lookml_model_explore')) {
+      return
+    }
     activeExplore !== '' && setIsGettingExplore(true)
     setExploreIsValid(null)
+    setErrorGettingExplore(false)
+    let result
 
     // explore details retrieved via API
-    const result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    try {
+      result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+    } catch (e) {
+      console.log('Error getting explore', e)
+      setErrorGettingExplore(true)
+      return
+    }
     let isRequiredTagPresent = false
     const fields = result.value.fields
     let tempObj = {}
@@ -237,7 +269,7 @@ export const App = hot(() => {
   // why did I do this?
   useEffect(() => {
     console.log('form params', globalActionFormParams)
-    getForm()
+    Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
   }, [globalActionFormParams])
 
   useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
@@ -278,6 +310,9 @@ export const App = hot(() => {
                   setActiveFilters={setActiveFilters}
                 />
           }
+          { errorGettingExplore && <MessageBar intent="critical">
+              There was an error retrieving the explore.  Please check the console and/or try again.
+            </MessageBar> }
         </StyledSidebar>
 
         <Space>
@@ -312,6 +347,9 @@ export const App = hot(() => {
             ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
             : <Button disabled>Scheduled Audience Build</Button> }
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
+          { errorGettingForm && <MessageBar intent="critical">
+              There was an error retrieving the audience-building form.  Please check the console and/or try again.
+            </MessageBar> }
         </StyledRightSidebar>
       </Space>
 

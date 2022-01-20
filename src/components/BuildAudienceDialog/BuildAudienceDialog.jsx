@@ -61,8 +61,13 @@ export const BuildAudienceDialog = ({
 
   // checks login status to see if oauth has been achieved or not
   const checkLoginStatus = async () => {
-    const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
-    return form.value.fields[0].name !== 'login'
+    try {
+      const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
+      return form.value.fields[0].name !== 'login'
+    } catch (e) {
+      console.log('Error checking login status', e)
+      return false
+    }
   }
 
   // function that runs when user is not authorized and oauth is required
@@ -116,7 +121,8 @@ export const BuildAudienceDialog = ({
         setWasActionSuccessful('no')
       }
     } catch (e) {
-      console.log(e);
+      console.log('Error submitting form', e)
+      setWasActionSuccessful('no')
     }
   };
   
