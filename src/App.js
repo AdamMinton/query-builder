@@ -191,8 +191,8 @@ export const App = hot(() => {
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
         
-        // dimensions and measures filtered to match aproved data types in constants file
-        if (constants.typeMap.hasOwnProperty(field.type)) {
+        // filter out unapproved data types and duplicate fields
+        if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag)) {
           tempObj[field.scope].label = field.view_label
           tempObj[field.scope].items.push({
             id: field.name,

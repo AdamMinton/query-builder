@@ -19,6 +19,9 @@ module.exports = {
     'google-ads-postal'
   ],
 
+  // Tag used to indicate a duplicate field that should not be rendered in the UI
+  duplicateTag: 'google-ads-duplicate',
+
   // List of permissable data types for fields, including types that need to be coerced for filtering
   typeMap: {
     number: 'number',
