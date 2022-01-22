@@ -15,8 +15,8 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
    <br>
    * At least one field [tagged](https://docs.looker.com/reference/field-params/tags) in the lkml with any of the following identifiers, to indicate a field that contains personal information:
    <br>
-      * `google-ads-idfa` (for a field containing an ???)
-      * `google-ads-aaid` (for a field containing an ???)
+      * `google-ads-idfa` (for a field containing an Apple IDFA value)
+      * `google-ads-aaid` (for a field containing an Google AAID value)
       * `google-ads-email` (for a field containing an email address)
       * `google-ads-phone` (for a field containing a phone number)
       * `google-ads-first` (for a field containing a first name)

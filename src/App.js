@@ -190,7 +190,7 @@ export const App = hot(() => {
     // dimensions and measures sorted by scope into filter menu
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
-        
+
         // filter out unapproved data types and duplicate fields
         if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag)) {
           tempObj[field.scope].label = field.view_label

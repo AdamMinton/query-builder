@@ -130,6 +130,13 @@ export const BuildAudienceDialog = ({
     <Dialog
       isOpen={isOpen}
       onClose={() => setIsOpen(false)}
+      onAfterClose={() => {
+        setActionFormFields([])
+        setLocalActionFormParams({})
+        setGlobalActionFormParams({})
+        setIsFormWorking(false)
+        setWasActionSuccessful('')
+      }}
       content={
         <DialogLayout
           header="Google Ads Customer Match"
@@ -151,14 +158,9 @@ export const BuildAudienceDialog = ({
                     : <Button onClick={submitForm}>Build Once</Button> 
                   }
                   { /* <Button onClick={submitForm}>Build audience</Button>*/ }
-                  <ButtonTransparent onClick={ () => {
-                    closeModal()
-                    setActionFormFields([])
-                    setLocalActionFormParams({})
-                    setGlobalActionFormParams({})
-                    setIsFormWorking(false)
-                    setWasActionSuccessful('')
-                  }} color="neutral">{wasActionSuccessful === 'yes' ? 'Close' : 'Cancel'}</ButtonTransparent>
+                  <ButtonTransparent onClick={closeModal} color="neutral">
+                    {wasActionSuccessful === 'yes' ? 'Close' : 'Cancel'}
+                  </ButtonTransparent>
                 </>
               )}
             </DialogContext.Consumer>
