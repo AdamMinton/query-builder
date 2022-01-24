@@ -343,9 +343,10 @@ export const App = hot(() => {
           { size
             ? <StyledButton onClick={handleBuildAudienceClick}>One-Time Audience Build</StyledButton>
             : <StyledButton disabled>One-Time Audience Build</StyledButton> }
-          { size
+          { /* size
             ? <StyledButton onClick={handleBuildAudienceClick}>Scheduled Audience Build</StyledButton>
-            : <StyledButton disabled>Scheduled Audience Build</StyledButton> }
+            : <StyledButton disabled>Scheduled Audience Build</StyledButton> */ }
+          <StyledButton disabled>Scheduled Audience Build</StyledButton> 
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.

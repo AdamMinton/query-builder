@@ -10,6 +10,11 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
 <br>
 - A Google Ads account to which the Looker user has access
 <br>
+- Your Looker project must have a `model` LookML file that possesses the following characteristics:
+<br>
+   * The model is connected to the project (see [here](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) on how to configure this connection).
+   * The data within should be modeled as per normal practices and any ids should be at the customer grain.
+<br>
 - A Looker explore that has dimensions or metrics meeting the following criteria:
    * A single field, representing a unique ID, [tagged](https://docs.looker.com/reference/field-params/tags) with `google-ads-uid` in the lkml
    <br>
@@ -29,11 +34,12 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
    <br>
      *Please note that more than one field can get each label.  The only requirement is that **one** field somewhere in the data must have one of these labels.  Additionally, the tool will validate your lkml for compliance and alert you if your explore doesn't have the proper tagging.*
    <br>
-   * Any field tagged with one of the tags above **MUST** have the identifier (the string following the second hyphen in the tag) included as part of the label.  For example, a field that contains a city name must have the word "city" in the field label.  This is because the connection between Looker data and Google Ads is done via regular expressions (see [here](https://help.looker.com/hc/en-us/articles/4403987588371) for more details).  If the field in question does not already have the identifier in the label, you have two options:
+   * Any field tagged with one of the tags above **MUST** have the identifier (i.e., the string following the second hyphen in the tag) included as part of the label.  For example, a field that contains a city name must have the word "city" in the field label.  This is because the connection between Looker data and Google Ads is done via regular expressions (see [here](https://help.looker.com/hc/en-us/articles/4403987588371) for more details).  If the field in question does not already have the identifier in the label, you have two options:
    <br>
       * You can append the identifier to the existing label, or
    <br>
       * You can duplicate the dimension and add the identifier to the duplicate field's label while also adding the `google-ads-duplicate` tag to the duplicate field (in order to prevent the duplicate field from appearing in the UI).
+
 
 
 =====================
@@ -77,21 +83,14 @@ In general, you'll want to work from left to right.
 
 6. This repo has a `manifest.lkml` file.  Either drag & upload this file into your Looker project, or create a `manifest.lkml` with the same content. Change the `id` and `label` as needed.
 
-7. Create a `model` LookML file in your project. The name doesn't matter but the convention is to name it the same as the project— in this case, helloworld-js.
-
-   - Add a connection in this model.
-   - [Configure the model you created](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) so that it has access to the selected connection.
-   We do this because Looker permissions data access via models— In order to grant / limit access to an extension, it must be associated with a model.
-
-8. Connect the project to Git. This can be done in multiple ways:
+7. Connect the project to Git. This can be done in multiple ways:
 
 - Create a new repository on GitHub or a similar service, and follow the instructions to [connect your project to Git](https://docs.looker.com/data-modeling/getting-started/setting-up-git-connection)
 - A simpler but less powerful approach is to set up git with the "Bare" repository option which does not require connecting to an external Git Service.
 
-9. Commit the changes and deploy them to production through the Project UI.
+8. Commit the changes and deploy them to production through the Project UI.
 
-10. Reload the page and click the `Browse` dropdown menu. You will see the extension in the list.
-
+9. Reload the page and click the `Browse` dropdown menu. You will see the extension in the list.
    - The extension will load the JavaScript from the `url` provided in the `application` definition. By default, this is http://localhost:8080/bundle.js. If you change the port your server runs on in the package.json, you will need to also update it in the manifest.lkml.
    - Refreshing the extension page will bring in any new code changes from the extension template, although some changes will hot reload.
 

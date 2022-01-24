@@ -92,6 +92,16 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, coreSDK })
             onChange={handleChange}
           />
         )}
+        {filter.type === 'yesno' && (
+          <Filter
+            name={filter.label}
+            expressionType="string"
+            expression={expression}
+            onChange={handleChange}
+            config={{ type: 'button_toggles' }}
+            suggestions={['Yes','No']}
+          />
+        )}
       </StyledItemInner>
     </Box2>
   )
