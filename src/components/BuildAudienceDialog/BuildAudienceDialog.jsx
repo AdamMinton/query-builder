@@ -27,7 +27,6 @@ import {
   Dialog,
   DialogLayout,
   DialogContext,
-  Button,
   ButtonTransparent,
   SpaceVertical,
   FieldText,
@@ -35,6 +34,7 @@ import {
   ProgressCircular,
   Badge
 } from '@looker/components'
+import { StyledButton } from '../../App.styles'
 import constants from '../../constants.js'
 
 
@@ -154,10 +154,10 @@ export const BuildAudienceDialog = ({
               {({ closeModal }) => (
                 <>
                   {  (isFormWorking || wasActionSuccessful === 'yes' || needsLogin)
-                    ? <Button disabled>Build Once</Button>
-                    : <Button onClick={submitForm}>Build Once</Button> 
+                    ? <StyledButton disabled>Build Once</StyledButton>
+                    : <StyledButton onClick={submitForm}>Build Once</StyledButton> 
                   }
-                  { /* <Button onClick={submitForm}>Build audience</Button>*/ }
+                  { /* <StyledButton onClick={submitForm}>Build audience</StyledButton>*/ }
                   <ButtonTransparent onClick={closeModal} color="neutral">
                     {wasActionSuccessful === 'yes' ? 'Close' : 'Cancel'}
                   </ButtonTransparent>
@@ -174,13 +174,13 @@ export const BuildAudienceDialog = ({
               return (
                 <>
                   <span>Please login to your Google account to continue.</span>
-                  <Button
+                  <StyledButton
                     key={actionFormFields[0].name}
                     value={localActionFormParams[actionFormFields[0].name]}
                     onClick={loginManager}
                   >
                     {actionFormFields[0].label}
-                  </Button>
+                  </StyledButton>
                 </>
               )
             } else if (field.type === "string" || field.type === "textarea" || field.type === null) {

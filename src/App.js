@@ -24,12 +24,12 @@
 
 import { hot } from 'react-hot-loader/root'
 import React, { useState, useEffect } from 'react'
-import { ComponentsProvider, Space, Button, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
+import { ComponentsProvider, Space, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { AudienceSize } from './components/AudienceSize/AudienceSize'
-import { StyledRightSidebar, StyledSidebar } from './App.styles'
+import { StyledRightSidebar, StyledSidebar, StyledButton } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 import constants from './constants.js'
@@ -341,11 +341,11 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
-            ? <Button onClick={handleBuildAudienceClick}>One-Time Audience Build</Button>
-            : <Button disabled>One-Time Audience Build</Button> }
+            ? <StyledButton onClick={handleBuildAudienceClick}>One-Time Audience Build</StyledButton>
+            : <StyledButton disabled>One-Time Audience Build</StyledButton> }
           { size
-            ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
-            : <Button disabled>Scheduled Audience Build</Button> }
+            ? <StyledButton onClick={handleBuildAudienceClick}>Scheduled Audience Build</StyledButton>
+            : <StyledButton disabled>Scheduled Audience Build</StyledButton> }
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.

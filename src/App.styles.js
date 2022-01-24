@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 import styled from 'styled-components'
-import { SpaceVertical } from '@looker/components'
+import { SpaceVertical, Button } from '@looker/components'
 
 export const StyledSidebar = styled(SpaceVertical)`
   border-right: 1px solid #e4e5e6;
@@ -32,4 +32,8 @@ export const StyledSidebar = styled(SpaceVertical)`
 export const StyledRightSidebar = styled(SpaceVertical)`
   border-left: 1px solid #e4e5e6;
   flex-shrink: 0;
+`
+
+export const StyledButton = styled(Button)`
+  background: #1A73E8;
 `

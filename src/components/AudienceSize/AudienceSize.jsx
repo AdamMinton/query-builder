@@ -23,7 +23,8 @@
  */
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Button, Span, Space, ProgressCircular, MessageBar } from '@looker/components'
+import { Span, Space, ProgressCircular, MessageBar } from '@looker/components'
+import { StyledButton } from '../../App.styles'
 
 export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery, coreSDK, activeModel, activeExplore, size, setSize }) => {
 
@@ -85,8 +86,8 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
   return (
     <div>
       { activeFilters.length
-        ? <Button onClick={checkAudienceSize}>Check Audience Size</Button>
-        : <Button disabled>Check Audience Size</Button> }
+        ? <StyledButton onClick={checkAudienceSize}>Check Audience Size</StyledButton>
+        : <StyledButton disabled>Check Audience Size</StyledButton> }
       <br></br>
       <br></br>
       { isCalculating
