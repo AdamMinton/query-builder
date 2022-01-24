@@ -7,19 +7,19 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
 ## Requirements
 
 - A Google ID (for authenticating access to Google Ads)
-<br>
+
 - A Google Ads account to which the Looker user has access
-<br>
+
 - Your Looker project must have a `model` LookML file that possesses the following characteristics:
-<br>
+
    * The model is connected to the project (see [here](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) on how to configure this connection).
    * The data within should be modeled as per normal practices and any ids should be at the customer grain.
-<br>
+
 - A Looker explore that has dimensions or metrics meeting the following criteria:
    * A single field, representing a unique ID, [tagged](https://docs.looker.com/reference/field-params/tags) with `google-ads-uid` in the lkml
-   <br>
+   
    * At least one field [tagged](https://docs.looker.com/reference/field-params/tags) in the lkml with any of the following identifiers, to indicate a field that contains personal information:
-   <br>
+   
       * `google-ads-idfa` (for a field containing an Apple IDFA value)
       * `google-ads-aaid` (for a field containing an Google AAID value)
       * `google-ads-email` (for a field containing an email address)
@@ -31,13 +31,13 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
       * `google-ads-state` (for a field containing a state name)
       * `google-ads-country` (for a field containing a country name)
       * `google-ads-postal` (for a field containing a postal or ZIP code)
-   <br>
+   
      *Please note that more than one field can get each label.  The only requirement is that **one** field somewhere in the data must have one of these labels.  Additionally, the tool will validate your lkml for compliance and alert you if your explore doesn't have the proper tagging.*
-   <br>
+   
    * Any field tagged with one of the tags above **MUST** have the identifier (i.e., the string following the second hyphen in the tag) included as part of the label.  For example, a field that contains a city name must have the word "city" in the field label.  This is because the connection between Looker data and Google Ads is done via regular expressions (see [here](https://help.looker.com/hc/en-us/articles/4403987588371) for more details).  If the field in question does not already have the identifier in the label, you have two options:
-   <br>
+   
       * You can append the identifier to the existing label, or
-   <br>
+   
       * You can duplicate the dimension and add the identifier to the duplicate field's label while also adding the `google-ads-duplicate` tag to the duplicate field (in order to prevent the duplicate field from appearing in the UI).
 
 
@@ -99,8 +99,8 @@ In general, you'll want to work from left to right.
 The process above describes how to run the extension for development. Once you're done developing and ready to deploy, the production version of the extension may be deployed as follows:
 
 1. In the extension project directory build the extension by running `yarn build`.
-2. Drag and drop the generated `dist/bundle.js` file into the Looker project interface
-3. Modify the `manifest.lkml` to use `file: "bundle.js` instead of `url: "http://localhost:8080/bundle.js`:
+2. Drag and drop the generated `dist/bundle.js` file into the Looker project interface.
+3. Modify the `manifest.lkml` to use `file: "bundle.js` instead of `url: "http://localhost:8080/bundle.js`.
 
 
 <br>Andrew Fechner
