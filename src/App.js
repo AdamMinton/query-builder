@@ -24,12 +24,12 @@
 
 import { hot } from 'react-hot-loader/root'
 import React, { useState, useEffect } from 'react'
-import { ComponentsProvider, Space, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
+import { ComponentsProvider, theme, Button, Space, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { AudienceSize } from './components/AudienceSize/AudienceSize'
-import { StyledRightSidebar, StyledSidebar, StyledButton } from './App.styles'
+import { GoogleBlueTheme, StyledRightSidebar, StyledSidebar } from './App.styles'
 import { SegmentLogic } from './components/SegmentLogic/SegmentLogic'
 import { BuildAudienceDialog } from './components/BuildAudienceDialog/BuildAudienceDialog'
 import constants from './constants.js'
@@ -276,7 +276,7 @@ export const App = hot(() => {
   useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
 
   return (
-    <ComponentsProvider>
+    <ComponentsProvider theme={GoogleBlueTheme}>
       <Space height="100%" align="start">
         <StyledSidebar width="324px" height="100%" align="start">
         <ModelAndExploreMenu
@@ -341,12 +341,12 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
-            ? <StyledButton onClick={handleBuildAudienceClick}>One-Time Audience Build</StyledButton>
-            : <StyledButton disabled>One-Time Audience Build</StyledButton> }
+            ? <Button onClick={handleBuildAudienceClick}>One-Time Audience Build</Button>
+            : <Button disabled>One-Time Audience Build</Button> }
           { /* size
-            ? <StyledButton onClick={handleBuildAudienceClick}>Scheduled Audience Build</StyledButton>
-            : <StyledButton disabled>Scheduled Audience Build</StyledButton> */ }
-          <StyledButton disabled>Scheduled Audience Build</StyledButton> 
+            ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
+            : <Button disabled>Scheduled Audience Build</Button> */ }
+          <Button disabled>Scheduled Audience Build</Button> 
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.
