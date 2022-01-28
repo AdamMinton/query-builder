@@ -76,6 +76,8 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
     // console.log(queryResult)
     setIsCalculating(false)
     if (!queryResult.ok) {
+      console.log('Bad query result')
+      console.log(queryResult)
       setIsQueryError(true)
     } else {
       setSize(queryResult.value[0].size)
