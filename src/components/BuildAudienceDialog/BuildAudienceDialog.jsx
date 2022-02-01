@@ -27,6 +27,7 @@ import {
   Dialog,
   DialogLayout,
   DialogContext,
+  Button,
   ButtonTransparent,
   SpaceVertical,
   FieldText,
