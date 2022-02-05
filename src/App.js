@@ -197,7 +197,14 @@ export const App = hot(() => {
           tempObj[field.scope].items.push({
             id: field.name,
             label: field.label_short,
-            type: constants.typeMap[field.type]
+            type: constants.typeMap[field.type],
+            'field': {
+              suggest_dimension: field.suggest_dimension,
+              suggest_explore: field.suggest_explore,
+              view: field.view,
+              suggestable: field.suggestable,
+              project_name: activeModel
+            }
           })
 
           // check to capture the presence of a designated UID field

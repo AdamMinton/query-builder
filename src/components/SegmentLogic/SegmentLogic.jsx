@@ -35,7 +35,7 @@ export const SegmentLogic = ({ activeFilters, setActiveFilters, coreSDK }) => {
             activeFilters={activeFilters}
             filter={filter}
             setActiveFilters={setActiveFilters}
-            coreSDK={coreSDK}
+            sdk={coreSDK}
           />
         </StyledItemWrapper>
       ))}

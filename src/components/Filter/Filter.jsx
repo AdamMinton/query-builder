@@ -28,7 +28,8 @@ import { Filter, useSuggestable } from '@looker/filter-components'
 import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
 import { StyledItemInner, StyledLabel } from './Filter.styles'
 
-export const FilterItem = ({ activeFilters, filter, setActiveFilters, coreSDK }) => {
+export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => {
+  
   const [expression, setExpression] = useState('')
 
   const handleChange = (value) => {
@@ -50,7 +51,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, coreSDK })
 
   const { errorMessage, suggestableProps } = useSuggestable({
     filter,
-    coreSDK,
+    sdk,
   })
 
   return (
@@ -111,5 +112,5 @@ FilterItem.propTypes = {
   activeFilters: PropTypes.array,
   filter: PropTypes.object,
   setActiveFilters: PropTypes.func,
-  coreSDK: PropTypes.object
+  sdk: PropTypes.object
 }
