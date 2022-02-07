@@ -198,6 +198,7 @@ export const App = hot(() => {
             id: field.name,
             label: field.label_short,
             type: constants.typeMap[field.type],
+            model: activeModel,
             'field': {
               suggest_dimension: field.suggest_dimension,
               suggest_explore: field.suggest_explore,
