@@ -203,8 +203,7 @@ export const App = hot(() => {
               suggest_dimension: field.suggest_dimension,
               suggest_explore: field.suggest_explore,
               view: field.view,
-              suggestable: field.suggestable,
-              project_name: activeModel
+              suggestable: field.suggestable
             }
           })
 
