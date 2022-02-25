@@ -15,7 +15,8 @@ application: customer-match-tool {
       "create_query",
       "create_look",
       "fetch_integration_form",
-      "scheduled_plan_run_once"
+      "scheduled_plan_run_once",
+      "model_fieldname_suggestions"
     ]
     new_window: yes
     new_window_external_urls: ["https://actions.looker.com"]
