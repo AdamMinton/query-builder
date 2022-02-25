@@ -1,11 +1,5 @@
-project_name: "customer_match_action_tool"
+project_name: "looker-demo-project"
 
-# # Use local_dependency: To enable referencing of another project
-# # on this instance with include: statements
-#
-# local_dependency: {
-#   project: "name_of_other_project"
-# }
 application: customer-match-tool {
   label: "Customer Match Tool"
   # file: "bundle.js"
