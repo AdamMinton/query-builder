@@ -24,7 +24,8 @@
 
 import { hot } from 'react-hot-loader/root'
 import React, { useState, useEffect } from 'react'
-import { ComponentsProvider, theme, Button, Space, Divider, ProgressCircular, MessageBar, Code } from '@looker/components'
+import { ComponentsProvider, theme, Button, Space, Divider, ProgressCircular, MessageBar, Code, Select, Label } from '@looker/components'
+import { InputTime } from '@looker/components-date'
 import { LookerExtensionSDK, connectExtensionHost } from '@looker/extension-sdk'
 import { ModelAndExploreMenu } from './components/ModelAndExploreMenu/ModelAndExploreMenu'
 import { Sidebar } from './components/Sidebar/Sidebar'
@@ -353,7 +354,26 @@ export const App = hot(() => {
           { /* size
             ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
             : <Button disabled>Scheduled Audience Build</Button> */ }
-          <Button disabled>Scheduled Audience Build</Button> 
+          <Button disabled>Scheduled Audience Build</Button>
+          <Select
+            autoResize
+            placeholder="Select a Frequency"
+            options={[
+              { value: 'once', label: 'Once' },
+              { value: 'daily', label: 'Daily' },
+              { value: 'MON', label: 'Every Monday' },
+              { value: 'TUE', label: 'Every Tuesday' },
+              { value: 'WED', label: 'Every Wednesday' },
+              { value: 'THU', label: 'Every Thursday' },
+              { value: 'FRI', label: 'Every Friday' },
+              { value: 'SAT', label: 'Every Saturday' },
+              { value: 'SUN', label: 'Every Sunday' },
+            ]}
+          />
+          <Space>
+            <Label htmlFor="demo-id">Time of Day</Label>
+            <InputTime id="demo-id" />
+          </Space>
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.
