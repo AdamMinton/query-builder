@@ -33,7 +33,8 @@ import {
   FieldText,
   FieldSelect,
   ProgressCircular,
-  Badge
+  Badge,
+  Select
 } from '@looker/components'
 import constants from '../../constants.js'
 
@@ -47,6 +48,7 @@ export const BuildAudienceDialog = ({
   setGlobalActionFormParams,
   coreSDK,
   queryId,
+  lookId,
   extensionSDK,
   getForm,
   isFormWorking,
@@ -54,7 +56,9 @@ export const BuildAudienceDialog = ({
   wasActionSuccessful,
   setWasActionSuccessful,
   needsLogin,
-  setNeedsLogin
+  setNeedsLogin,
+  cronTab,
+  frequency
 }) => {
 
   const [localActionFormParams, setLocalActionFormParams] = useState(initActionFormParams)
@@ -93,13 +97,8 @@ export const BuildAudienceDialog = ({
     setGlobalActionFormParams(params);
   };
   
-  // sends audience to Google Ads as a one-time build
-  const submitForm = async () => {
-    setIsFormWorking(true)
-    const currentTimestamp = new Date(Date.now()).toLocaleString();
-    const name = `Sent from Extension - ${currentTimestamp}`;
-    const destination = `looker-integration://${constants.formDestination}`;
-
+  // API call for a one-time audience build
+  const oneTimeBuild = async (name, destination) => {
     try {
       const response = await coreSDK.scheduled_plan_run_once({
           name: name,
@@ -115,15 +114,79 @@ export const BuildAudienceDialog = ({
         })
       console.log('action response', response)
       setIsFormWorking(false)
-      if (response.ok) {
-        setWasActionSuccessful('yes')
-      } else {
-        setWasActionSuccessful('no')
-      }
+      return response
     } catch (e) {
       console.log('Error submitting form', e)
       setWasActionSuccessful('no')
     }
+  };
+
+  // API call to create a scheduled audience build
+  const scheduledBuild = async (name, destination) => {
+    try {
+      const response = await coreSDK.create_scheduled_plan({
+          name: name,
+          look_id: lookId,
+          scheduled_plan_destination: [
+            {
+              type: destination,
+              format: "json_detail_lite_stream",
+              parameters: JSON.stringify(localActionFormParams),
+            },
+          ],
+          send_all_results: true,
+          require_results: true,
+          require_no_results: true,
+          require_change: true,
+          crontab: cronTab
+        })
+      console.log('action response', response)
+      setIsFormWorking(false)
+      return response
+    } catch (e) {
+      console.log('Error submitting form', e)
+      setWasActionSuccessful('no')
+    }
+  };
+
+
+  // evaluates type of audience creation requested and calls appropriate API endpoint
+  const submitForm = async () => {
+    setIsFormWorking(true)
+    const currentTimestamp = new Date(Date.now()).toLocaleString();
+    const name = `Sent from Extension - ${currentTimestamp}`;
+    const destination = `looker-integration://${constants.formDestination}`;
+    const response = frequency === 'once' ? await oneTimeBuild(name, destination) : await scheduledBuild(name, destination)
+    if (response.ok) {
+      setWasActionSuccessful('yes')
+    } else {
+      setWasActionSuccessful('no')
+    }
+
+    // try {
+    //   const response = await coreSDK.scheduled_plan_run_once({
+    //       name: name,
+    //       query_id: queryId,
+    //       scheduled_plan_destination: [
+    //         {
+    //           type: destination,
+    //           format: "json_detail_lite_stream",
+    //           parameters: JSON.stringify(localActionFormParams),
+    //         },
+    //       ],
+    //       send_all_results: true
+    //     })
+    //   console.log('action response', response)
+    //   setIsFormWorking(false)
+    //   if (response.ok) {
+    //     setWasActionSuccessful('yes')
+    //   } else {
+    //     setWasActionSuccessful('no')
+    //   }
+    // } catch (e) {
+    //   console.log('Error submitting form', e)
+    //   setWasActionSuccessful('no')
+    // }
   };
   
   return (
@@ -240,6 +303,7 @@ BuildAudienceDialog.propTypes = {
   setGlobalActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
   queryId: PropTypes.number,
+  lookId: PropTypes.number,
   extensionSDK: PropTypes.object,
   getForm: PropTypes.func,
   isFormWorking: PropTypes.bool,
@@ -247,7 +311,9 @@ BuildAudienceDialog.propTypes = {
   wasActionSuccessful: PropTypes.string,
   setWasActionSuccessful: PropTypes.func,
   needsLogin: PropTypes.bool,
-  setNeedsLogin: PropTypes.func
+  setNeedsLogin: PropTypes.func,
+  cronTab: PropTypes.string,
+  frequency: PropTypes.string
 }
 /*
 

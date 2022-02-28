@@ -66,6 +66,7 @@ export const App = hot(() => {
   const [frequency, setFrequency] = useState('')
   const [timeOfDay, setTimeOfDay] = useState('')
   const [unlockButton, setUnlockButton] = useState(false)
+  const [cronTab, setCronTab] = ''
   
   // retrives action integration form from Looker API
   const getForm = async () => {
@@ -115,9 +116,11 @@ export const App = hot(() => {
         "query_id": id,
         "folder_id": 1 // may need to dynamically determine ID of "Shared" folder?
       }
-      const createdLook = await coreSDK.create_look(lookRequestBody)
-      // console.log(createdLook)
-      setLookId(createdLook.value.id)
+      if (frequency !== 'once') {
+        const createdLook = await coreSDK.create_look(lookRequestBody)
+        console.log('look!', createdLook)
+        setLookId(createdLook.value.id)
+      }
 
       // if (!actionFormFields.length) {
       //   console.log('waiting on them fields')
@@ -280,7 +283,14 @@ export const App = hot(() => {
   }, [actionFormFields])
 
   // when schedule is set, check to see if conditions are met to start audience build process
-  useEffect(() => unlockButtonCheck(), [frequency, timeOfDay])
+  useEffect(() => {
+    unlockButtonCheck()
+    if (frequency !== 'once' && timeOfDay) {
+      const [hour, minute] = timeOfDay.split(':')
+      setCronTab(`${minute} ${hour} * * ${frequency}`)
+      console.log(cronTab)
+    }
+  }, [frequency, timeOfDay])
 
   // useEffect(() => console.log('uid state', uidField), [uidField])
   // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
@@ -420,6 +430,7 @@ export const App = hot(() => {
         setGlobalActionFormParams={setGlobalActionFormParams}
         coreSDK={coreSDK}
         queryId={query.id}
+        lookId={lookId}
         extensionSDK={extensionSDK}
         getForm={getForm}
         isFormWorking={isFormWorking}
@@ -428,6 +439,8 @@ export const App = hot(() => {
         setWasActionSuccessful={setWasActionSuccessful}
         needsLogin={needsLogin}
         setNeedsLogin={setNeedsLogin}
+        cronTab={cronTab}
+        frequency={frequency}
       />
     </ComponentsProvider>
   )
