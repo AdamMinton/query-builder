@@ -33,8 +33,7 @@ import {
   FieldText,
   FieldSelect,
   ProgressCircular,
-  Badge,
-  Select
+  Badge
 } from '@looker/components'
 import constants from '../../constants.js'
 
@@ -58,7 +57,8 @@ export const BuildAudienceDialog = ({
   needsLogin,
   setNeedsLogin,
   cronTab,
-  frequency
+  frequency,
+  buildButtonText
 }) => {
 
   const [localActionFormParams, setLocalActionFormParams] = useState(initActionFormParams)
@@ -90,7 +90,7 @@ export const BuildAudienceDialog = ({
     const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
     (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
     // console.log('changing', key, event)
-    // console.log('local action params', localActionFormParams)
+    console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
     params[key] = fieldType === "text" ? event.target.value : event;
     setLocalActionFormParams(params);
@@ -99,6 +99,7 @@ export const BuildAudienceDialog = ({
   
   // API call for a one-time audience build
   const oneTimeBuild = async (name, destination) => {
+    console.log(JSON.stringify(localActionFormParams))
     try {
       const response = await coreSDK.scheduled_plan_run_once({
           name: name,
@@ -117,6 +118,7 @@ export const BuildAudienceDialog = ({
       return response
     } catch (e) {
       console.log('Error submitting form', e)
+      setIsFormWorking(false)
       setWasActionSuccessful('no')
     }
   };
@@ -134,9 +136,9 @@ export const BuildAudienceDialog = ({
               parameters: JSON.stringify(localActionFormParams),
             },
           ],
-          send_all_results: true,
+          // send_all_results: true,
           require_results: true,
-          require_no_results: true,
+          require_no_results: false,
           require_change: true,
           crontab: cronTab
         })
@@ -145,13 +147,14 @@ export const BuildAudienceDialog = ({
       return response
     } catch (e) {
       console.log('Error submitting form', e)
+      setIsFormWorking(false)
       setWasActionSuccessful('no')
     }
   };
 
-
   // evaluates type of audience creation requested and calls appropriate API endpoint
   const submitForm = async () => {
+    console.log(JSON.stringify(localActionFormParams))
     setIsFormWorking(true)
     const currentTimestamp = new Date(Date.now()).toLocaleString();
     const name = `Sent from Extension - ${currentTimestamp}`;
@@ -162,31 +165,6 @@ export const BuildAudienceDialog = ({
     } else {
       setWasActionSuccessful('no')
     }
-
-    // try {
-    //   const response = await coreSDK.scheduled_plan_run_once({
-    //       name: name,
-    //       query_id: queryId,
-    //       scheduled_plan_destination: [
-    //         {
-    //           type: destination,
-    //           format: "json_detail_lite_stream",
-    //           parameters: JSON.stringify(localActionFormParams),
-    //         },
-    //       ],
-    //       send_all_results: true
-    //     })
-    //   console.log('action response', response)
-    //   setIsFormWorking(false)
-    //   if (response.ok) {
-    //     setWasActionSuccessful('yes')
-    //   } else {
-    //     setWasActionSuccessful('no')
-    //   }
-    // } catch (e) {
-    //   console.log('Error submitting form', e)
-    //   setWasActionSuccessful('no')
-    // }
   };
   
   return (
@@ -217,10 +195,9 @@ export const BuildAudienceDialog = ({
               {({ closeModal }) => (
                 <>
                   {  (isFormWorking || wasActionSuccessful === 'yes' || needsLogin)
-                    ? <Button disabled>Build Once</Button>
-                    : <Button onClick={submitForm}>Build Once</Button> 
+                    ? <Button disabled>{buildButtonText}</Button>
+                    : <Button onClick={submitForm}>{buildButtonText}</Button> 
                   }
-                  { /* <Button onClick={submitForm}>Build audience</Button>*/ }
                   <ButtonTransparent onClick={closeModal} color="neutral">
                     {wasActionSuccessful === 'yes' ? 'Close' : 'Cancel'}
                   </ButtonTransparent>
@@ -313,7 +290,8 @@ BuildAudienceDialog.propTypes = {
   needsLogin: PropTypes.bool,
   setNeedsLogin: PropTypes.func,
   cronTab: PropTypes.string,
-  frequency: PropTypes.string
+  frequency: PropTypes.string,
+  buildButtonText: PropTypes.string
 }
 /*
 

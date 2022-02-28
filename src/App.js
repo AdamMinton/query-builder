@@ -66,7 +66,8 @@ export const App = hot(() => {
   const [frequency, setFrequency] = useState('')
   const [timeOfDay, setTimeOfDay] = useState('')
   const [unlockButton, setUnlockButton] = useState(false)
-  const [cronTab, setCronTab] = ''
+  const [cronTab, setCronTab] = useState('')
+  const [buildButtonText, setBuildButtonText] = useState('Build One-off Audience')
   
   // retrives action integration form from Looker API
   const getForm = async () => {
@@ -119,7 +120,7 @@ export const App = hot(() => {
       if (frequency !== 'once') {
         const createdLook = await coreSDK.create_look(lookRequestBody)
         console.log('look!', createdLook)
-        setLookId(createdLook.value.id)
+        setLookId(Number(createdLook.value.id))
       }
 
       // if (!actionFormFields.length) {
@@ -282,13 +283,17 @@ export const App = hot(() => {
     }
   }, [actionFormFields])
 
-  // when schedule is set, check to see if conditions are met to start audience build process
+  // when schedule is set, check to see if conditions are met to start audience build process, build crontab, adjust form submit button text
   useEffect(() => {
     unlockButtonCheck()
-    if (frequency !== 'once' && timeOfDay) {
-      const [hour, minute] = timeOfDay.split(':')
-      setCronTab(`${minute} ${hour} * * ${frequency}`)
-      console.log(cronTab)
+    if (frequency !== 'once') {
+      setBuildButtonText("Schedule Recurring Audience Build")
+      if (timeOfDay) {
+        const [hour, minute] = timeOfDay.split(':')
+        setCronTab(`${minute} ${hour} * * ${frequency}`)
+      }
+    } else {
+      setBuildButtonText('Build One-off Audience')
     }
   }, [frequency, timeOfDay])
 
@@ -300,12 +305,13 @@ export const App = hot(() => {
   // useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
   // useEffect(() => console.log('frequency', frequency), [frequency])
   // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
+  // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
   
   // why did I do this?
-  useEffect(() => {
-    console.log('form params', globalActionFormParams)
-    Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
-  }, [globalActionFormParams])
+  // useEffect(() => {
+  //   console.log('form params', globalActionFormParams)
+  //   Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
+  // }, [globalActionFormParams])
 
  
 
@@ -441,6 +447,7 @@ export const App = hot(() => {
         setNeedsLogin={setNeedsLogin}
         cronTab={cronTab}
         frequency={frequency}
+        buildButtonText={buildButtonText}
       />
     </ComponentsProvider>
   )
