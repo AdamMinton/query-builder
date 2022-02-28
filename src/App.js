@@ -63,6 +63,9 @@ export const App = hot(() => {
   const [needsLogin, setNeedsLogin] = useState(false)
   const [errorGettingForm, setErrorGettingForm] = useState(false)
   const [errorGettingExplore, setErrorGettingExplore] = useState(false)
+  const [frequency, setFrequency] = useState('')
+  const [timeOfDay, setTimeOfDay] = useState('')
+  const [unlockButton, setUnlockButton] = useState(false)
   
   // retrives action integration form from Looker API
   const getForm = async () => {
@@ -83,6 +86,13 @@ export const App = hot(() => {
     }
   };
   
+  // validates conditions needed to unlock the build audience button
+  const unlockButtonCheck = () => {
+    const validSchedule = (frequency === 'once' || (frequency !== 'once' && timeOfDay))
+    console.log('button check:', frequency, timeOfDay, validSchedule, size)
+    setUnlockButton(size && validSchedule)
+  }
+
   // click handler for building audiences
   const handleBuildAudienceClick = async () => {
     setErrorGettingForm(false)
@@ -269,10 +279,17 @@ export const App = hot(() => {
     }
   }, [actionFormFields])
 
+  // when schedule is set, check to see if conditions are met to start audience build process
+  useEffect(() => unlockButtonCheck(), [frequency, timeOfDay])
+
   // useEffect(() => console.log('uid state', uidField), [uidField])
   // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
   // useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
   // useEffect(() => console.log('query', query), [query])
+  // useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
+  // useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
+  // useEffect(() => console.log('frequency', frequency), [frequency])
+  // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
   
   // why did I do this?
   useEffect(() => {
@@ -280,8 +297,7 @@ export const App = hot(() => {
     Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
   }, [globalActionFormParams])
 
-  useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
-  useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
+ 
 
   return (
     <ComponentsProvider theme={GoogleBlueTheme}>
@@ -349,31 +365,45 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
-            ? <Button onClick={handleBuildAudienceClick}>One-Time Audience Build</Button>
-            : <Button disabled>One-Time Audience Build</Button> }
+            ? <Select
+                maxWidth={182}
+                placeholder="Select a Frequency"
+                onChange={value => setFrequency(value)}
+                options={[
+                  { value: 'once', label: 'Once' },
+                  { value: '*', label: 'Daily' },
+                  { value: 'MON', label: 'Every Monday' },
+                  { value: 'TUE', label: 'Every Tuesday' },
+                  { value: 'WED', label: 'Every Wednesday' },
+                  { value: 'THU', label: 'Every Thursday' },
+                  { value: 'FRI', label: 'Every Friday' },
+                  { value: 'SAT', label: 'Every Saturday' },
+                  { value: 'SUN', label: 'Every Sunday' },
+                ]}
+              />
+            : <Select
+                disabled
+                maxWidth={182}
+                placeholder="Select a Frequency"
+              />
+          }
+          { (frequency !== 'once' && frequency !== '') &&
+            <Space>
+              <Label htmlFor="time-input">Time of Day (24h)</Label>
+              <InputTime
+                id="time-input"
+                format="24h"
+                onChange={value => setTimeOfDay(value)}
+              />
+            </Space>
+          }
+          { unlockButton
+            ? <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
+            : <Button disabled>Build Audience</Button> }
           { /* size
             ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
             : <Button disabled>Scheduled Audience Build</Button> */ }
-          <Button disabled>Scheduled Audience Build</Button>
-          <Select
-            autoResize
-            placeholder="Select a Frequency"
-            options={[
-              { value: 'once', label: 'Once' },
-              { value: 'daily', label: 'Daily' },
-              { value: 'MON', label: 'Every Monday' },
-              { value: 'TUE', label: 'Every Tuesday' },
-              { value: 'WED', label: 'Every Wednesday' },
-              { value: 'THU', label: 'Every Thursday' },
-              { value: 'FRI', label: 'Every Friday' },
-              { value: 'SAT', label: 'Every Saturday' },
-              { value: 'SUN', label: 'Every Sunday' },
-            ]}
-          />
-          <Space>
-            <Label htmlFor="demo-id">Time of Day</Label>
-            <InputTime id="demo-id" />
-          </Space>
+          {/* <Button disabled>Scheduled Audience Build</Button> */}
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.
