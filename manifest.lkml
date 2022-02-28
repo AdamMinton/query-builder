@@ -16,6 +16,7 @@ application: customer-match-tool {
       "create_look",
       "fetch_integration_form",
       "scheduled_plan_run_once",
+      "create_scheduled_plan",
       "model_fieldname_suggestions"
     ]
     new_window: yes
