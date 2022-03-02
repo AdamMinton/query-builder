@@ -50,6 +50,14 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => 
     setActiveFilters(newFilters)
   }
 
+  const removeFilter = (filter) => {
+    activeFilters.splice(
+      activeFilters.findIndex((item) => item.id === filter.id),
+      1
+    )
+    setActiveFilters([...activeFilters])
+  }
+  
   const { errorMessage, suggestableProps } = useSuggestable({
     filter,
     sdk,
@@ -58,7 +66,11 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => 
   return (
     <Box2 m="u3">
       <StyledItemInner>
-        <IconButton icon={<Close />} label="Close" />
+        <IconButton
+          icon={<Close />}
+          label="Remove Filter"
+          onClick={removeFilter}
+        />
         <StyledLabel fontSize="small">{filter.label}</StyledLabel>
 
         {filter.type === 'string' && (
