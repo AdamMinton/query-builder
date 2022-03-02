@@ -89,7 +89,7 @@ export const BuildAudienceDialog = ({
   const onChangeFormSelectParams = (key, event, fieldType) => {
     const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
     (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
-    // console.log('changing', key, event)
+    console.log('changing', key, event)
     console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
     params[key] = fieldType === "text" ? event.target.value : event;
@@ -136,10 +136,10 @@ export const BuildAudienceDialog = ({
               parameters: JSON.stringify(localActionFormParams),
             },
           ],
-          // send_all_results: true,
-          require_results: true,
+          send_all_results: true,
+          require_results: false,
           require_no_results: false,
-          require_change: true,
+          require_change: false,
           crontab: cronTab
         })
       console.log('action response', response)

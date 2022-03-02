@@ -1,5 +1,8 @@
 module.exports = {
   
+  // Tag used to indicate a valid Explore for the tool
+  validExploreTag: 'audience-builder-application',
+  
   // Tag used to indicate the Looker field designated as the UID
   uidTag: 'google-ads-uid',
   

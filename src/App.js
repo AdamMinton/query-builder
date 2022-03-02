@@ -63,11 +63,11 @@ export const App = hot(() => {
   const [needsLogin, setNeedsLogin] = useState(false)
   const [errorGettingForm, setErrorGettingForm] = useState(false)
   const [errorGettingExplore, setErrorGettingExplore] = useState(false)
-  const [frequency, setFrequency] = useState('')
+  const [frequency, setFrequency] = useState('once')
   const [timeOfDay, setTimeOfDay] = useState('')
   const [unlockButton, setUnlockButton] = useState(false)
   const [cronTab, setCronTab] = useState('')
-  const [buildButtonText, setBuildButtonText] = useState('Build One-off Audience')
+  const [buildButtonText, setBuildButtonText] = useState('Send Audience Now')
   
   // retrives action integration form from Looker API
   const getForm = async () => {
@@ -88,9 +88,12 @@ export const App = hot(() => {
     }
   };
   
+  // Sorts model and explore names alphabetically
+  const labelSorter = (a,b) => a.label < b.label ? -1 : 1
+
   // validates conditions needed to unlock the build audience button
   const unlockButtonCheck = () => {
-    const validSchedule = (frequency === 'once' || (frequency !== 'once' && timeOfDay))
+    const validSchedule = frequency !== 'once' && timeOfDay
     console.log('button check:', frequency, timeOfDay, validSchedule, size)
     setUnlockButton(size && validSchedule)
   }
@@ -161,11 +164,16 @@ export const App = hot(() => {
         tempModels.push({ value: model.name, label: model.label})
         tempExplores[model.name] = []
         model.explores.forEach(explore => {
-          tempExplores[model.name].push({ value: explore.name, label: explore.label})
+          if (true /*explore.groupLabel === constants.validExploreTag*/) {
+            tempExplores[model.name].push({ value: explore.name, label: explore.label})
+          }
         })
+        for (let modelName in tempExplores) {
+          tempExplores[modelName] = tempExplores[modelName].sort(labelSorter)
+        }
       }
     })
-    setModels(tempModels)
+    setModels(tempModels.sort(labelSorter))
     setExplores(tempExplores)
   }, [])
   
@@ -287,15 +295,21 @@ export const App = hot(() => {
   useEffect(() => {
     unlockButtonCheck()
     if (frequency !== 'once') {
-      setBuildButtonText("Schedule Recurring Audience Build")
+      setBuildButtonText("Schedule Recurring Send")
       if (timeOfDay) {
         const [hour, minute] = timeOfDay.split(':')
         setCronTab(`${minute} ${hour} * * ${frequency}`)
       }
     } else {
-      setBuildButtonText('Build One-off Audience')
+      setBuildButtonText('Send Audience Now')
     }
   }, [frequency, timeOfDay])
+
+  // Retrieves action form params and captures in state for audience build window
+  useEffect(() => {
+    console.log('form params', globalActionFormParams)
+    Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
+  }, [globalActionFormParams])
 
   // useEffect(() => console.log('uid state', uidField), [uidField])
   // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
@@ -307,13 +321,6 @@ export const App = hot(() => {
   // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
   // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
   
-  // why did I do this?
-  // useEffect(() => {
-  //   console.log('form params', globalActionFormParams)
-  //   Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
-  // }, [globalActionFormParams])
-
- 
 
   return (
     <ComponentsProvider theme={GoogleBlueTheme}>
@@ -381,12 +388,20 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
+            ? <Button onClick={handleBuildAudienceClick}>Send Audience Now</Button>
+            : <Button disabled>Send Audience Now</Button>
+          }
+          <Divider mt="u4" appearance="light" />
+          { unlockButton
+            ? <Button onClick={handleBuildAudienceClick}>Schedule Recurring Send</Button>
+            : <Button disabled>Schedule Recurring Send</Button> 
+          }
+          { size
             ? <Select
-                maxWidth={182}
+                maxWidth={209}
                 placeholder="Select a Frequency"
                 onChange={value => setFrequency(value)}
                 options={[
-                  { value: 'once', label: 'Once' },
                   { value: '*', label: 'Daily' },
                   { value: 'MON', label: 'Every Monday' },
                   { value: 'TUE', label: 'Every Tuesday' },
@@ -399,11 +414,11 @@ export const App = hot(() => {
               />
             : <Select
                 disabled
-                maxWidth={182}
+                maxWidth={209}
                 placeholder="Select a Frequency"
               />
           }
-          { (frequency !== 'once' && frequency !== '') &&
+          { frequency !== 'once' &&
             <Space>
               <Label htmlFor="time-input">Time of Day (24h)</Label>
               <InputTime
@@ -413,13 +428,6 @@ export const App = hot(() => {
               />
             </Space>
           }
-          { unlockButton
-            ? <Button onClick={handleBuildAudienceClick}>Build Audience</Button>
-            : <Button disabled>Build Audience</Button> }
-          { /* size
-            ? <Button onClick={handleBuildAudienceClick}>Scheduled Audience Build</Button>
-            : <Button disabled>Scheduled Audience Build</Button> */ }
-          {/* <Button disabled>Scheduled Audience Build</Button> */}
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
               There was an error retrieving the audience-building form.  Please check the console and/or try again.
