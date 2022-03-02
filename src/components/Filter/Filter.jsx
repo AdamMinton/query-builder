@@ -23,10 +23,11 @@
  */
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box2 } from '@looker/components'
+import { Box2, IconButton } from '@looker/components'
 import { Filter, useSuggestable } from '@looker/filter-components'
 import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
 import { StyledItemInner, StyledLabel } from './Filter.styles'
+import { Close } from '@styled-icons/material/Close'
 
 export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => {
   
@@ -57,6 +58,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => 
   return (
     <Box2 m="u3">
       <StyledItemInner>
+        <IconButton icon={<Close />} label="Close" />
         <StyledLabel fontSize="small">{filter.label}</StyledLabel>
 
         {filter.type === 'string' && (
