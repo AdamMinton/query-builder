@@ -166,7 +166,7 @@ export const App = hot(() => {
         tempModels.push({ value: model.name, label: model.label})
         tempExplores[model.name] = []
         model.explores.forEach(explore => {
-          if (true /*explore.groupLabel === constants.validExploreTag*/) {
+          if (explore.description && explore.description.includes(constants.validExploreTag)) {
             tempExplores[model.name].push({ value: explore.name, label: explore.label})
           }
         })
@@ -330,11 +330,11 @@ export const App = hot(() => {
   // useEffect(() => console.log('query', query), [query])
   // useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
   // useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
-  useEffect(() => console.log('frequency', frequency), [frequency])
+  // useEffect(() => console.log('frequency', frequency), [frequency])
   // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
   // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
   // useEffect(() => console.log('time zones', timeZones), [timeZones])
-  // useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
+  useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
   
 
   return (

@@ -15,7 +15,7 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
    * The model is connected to the project (see [here](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) on how to configure this connection).
    * The data within should be modeled as per normal practices and any ids should be at the customer grain.
 
-- A Looker explore that has dimensions or metrics meeting the following criteria:
+- A Looker explore that has the string `#audience-builder` in its description and that has dimensions or metrics meeting the following criteria:
    * A single field, representing a unique ID, [tagged](https://docs.looker.com/reference/field-params/tags) with `google-ads-uid` in the lkml
    
    * At least one field [tagged](https://docs.looker.com/reference/field-params/tags) in the lkml with any of the following identifiers, to indicate a field that contains personal information:
