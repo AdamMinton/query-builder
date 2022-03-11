@@ -39,9 +39,11 @@ export const App = hot(() => {
   
   const [models, setModels] = useState([{value: '', name: 'Choose a Model'}])
   const [explores, setExplores] = useState({ temp: [{value: '', name: 'Choose an Explore'}]})
+  const [timeZones, setTimeZones] = useState([])
   const [filters, setFilters] = useState({ items: [] })
   const [activeModel, setActiveModel] = useState('')
   const [activeExplore, setActiveExplore] = useState('')
+  const [userTimeZone, setUserTimeZone] = useState('')
   const [exploreIsValid, setExploreIsValid] = useState(null)
   const [uidField, setUidField] = useState([])
   const [requiredFields, setRequiredFields] = useState({})
@@ -175,6 +177,17 @@ export const App = hot(() => {
     })
     setModels(tempModels.sort(labelSorter))
     setExplores(tempExplores)
+
+    // loads timezones into state
+    let doWeHaveTheTimeZones = false
+    let tzResult
+    while (!doWeHaveTheTimeZones) {
+      tzResult = await tempSDK.all_timezones()
+      doWeHaveTheTimeZones = tzResult.ok
+    }
+    setTimeZones(tzResult.value.sort(labelSorter))
+    setUserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
+
   }, [])
   
   // steps taken when an explore is chosen
@@ -320,6 +333,8 @@ export const App = hot(() => {
   // useEffect(() => console.log('frequency', frequency), [frequency])
   // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
   // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
+  useEffect(() => console.log('time zones', timeZones), [timeZones])
+  useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
   
 
   return (

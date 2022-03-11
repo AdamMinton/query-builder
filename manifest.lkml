@@ -17,7 +17,8 @@ application: looker-demo-project {
       "fetch_integration_form",
       "scheduled_plan_run_once",
       "create_scheduled_plan",
-      "model_fieldname_suggestions"
+      "model_fieldname_suggestions",
+      "all_timezones"
     ]
     new_window: yes
     new_window_external_urls: ["https://actions.looker.com"]
