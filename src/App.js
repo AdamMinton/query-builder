@@ -96,12 +96,12 @@ export const App = hot(() => {
   // validates conditions needed to unlock the build audience button
   const unlockButtonCheck = () => {
     const validSchedule = frequency !== 'once' && timeOfDay
-    console.log('button check:', frequency, timeOfDay, validSchedule, size)
     setUnlockButton(size && validSchedule)
   }
 
   // click handler for building audiences
   const handleBuildAudienceClick = async () => {
+    console.log(userTimeZone)
     setErrorGettingForm(false)
     setIsGettingForm(true)
     let doWeHaveTheForm = false
@@ -330,11 +330,11 @@ export const App = hot(() => {
   // useEffect(() => console.log('query', query), [query])
   // useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
   // useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
-  // useEffect(() => console.log('frequency', frequency), [frequency])
+  useEffect(() => console.log('frequency', frequency), [frequency])
   // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
   // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
-  useEffect(() => console.log('time zones', timeZones), [timeZones])
-  useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
+  // useEffect(() => console.log('time zones', timeZones), [timeZones])
+  // useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
   
 
   return (
@@ -403,7 +403,11 @@ export const App = hot(() => {
           />
           <Divider mt="u4" appearance="light" />
           { size
-            ? <Button onClick={handleBuildAudienceClick}>Send Audience Now</Button>
+            ? <Button onClick={() => {
+                setFrequency('once')
+                handleBuildAudienceClick()
+              }}
+              >Send Audience Now</Button>
             : <Button disabled>Send Audience Now</Button>
           }
           <Divider mt="u4" appearance="light" />
@@ -434,14 +438,23 @@ export const App = hot(() => {
               />
           }
           { frequency !== 'once' &&
-            <Space>
-              <Label htmlFor="time-input">Time of Day (24h)</Label>
-              <InputTime
-                id="time-input"
-                format="24h"
-                onChange={value => setTimeOfDay(value)}
+            <div>
+              <Space>
+                <Label htmlFor="time-input">Time of Day (24h)</Label>
+                <InputTime
+                  id="time-input"
+                  format="24h"
+                  onChange={value => setTimeOfDay(value)}
+                />
+              </Space>
+              <br></br>
+              <Select
+                maxWidth={209}
+                placeholder={userTimeZone}
+                onChange={value => setUserTimeZone(value)}
+                options={timeZones}
               />
-            </Space>
+            </div>
           }
           { isGettingForm && <Space justifyContent="left"><ProgressCircular /></Space> }
           { errorGettingForm && <MessageBar intent="critical">
@@ -469,6 +482,7 @@ export const App = hot(() => {
         needsLogin={needsLogin}
         setNeedsLogin={setNeedsLogin}
         cronTab={cronTab}
+        timeZone={userTimeZone}
         frequency={frequency}
         buildButtonText={buildButtonText}
       />

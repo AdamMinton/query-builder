@@ -57,6 +57,7 @@ export const BuildAudienceDialog = ({
   needsLogin,
   setNeedsLogin,
   cronTab,
+  timeZone,
   frequency,
   buildButtonText
 }) => {
@@ -140,7 +141,8 @@ export const BuildAudienceDialog = ({
           require_results: false,
           require_no_results: false,
           require_change: false,
-          crontab: cronTab
+          crontab: cronTab,
+          timezone: timeZone
         })
       console.log('action response', response)
       setIsFormWorking(false)
@@ -290,6 +292,7 @@ BuildAudienceDialog.propTypes = {
   needsLogin: PropTypes.bool,
   setNeedsLogin: PropTypes.func,
   cronTab: PropTypes.string,
+  timeZone: PropTypes.string,
   frequency: PropTypes.string,
   buildButtonText: PropTypes.string
 }
