@@ -90,8 +90,6 @@ export const BuildAudienceDialog = ({
   const onChangeFormSelectParams = (key, event, fieldType) => {
     const moreFieldsComing = actionFormFields[actionFormFields.length - 1].name !== 'doHashing';
     (fieldType !== 'text' && moreFieldsComing) && setIsFormWorking(true)
-    console.log('changing', key, event)
-    console.log('local action params', localActionFormParams)
     let params = JSON.parse(JSON.stringify(localActionFormParams));
     params[key] = fieldType === "text" ? event.target.value : event;
     setLocalActionFormParams(params);
@@ -100,7 +98,6 @@ export const BuildAudienceDialog = ({
   
   // API call for a one-time audience build
   const oneTimeBuild = async (name, destination) => {
-    console.log(JSON.stringify(localActionFormParams))
     try {
       const response = await coreSDK.scheduled_plan_run_once({
           name: name,
@@ -114,11 +111,9 @@ export const BuildAudienceDialog = ({
           ],
           send_all_results: true
         })
-      console.log('action response', response)
       setIsFormWorking(false)
       return response
     } catch (e) {
-      console.log('Error submitting form', e)
       setIsFormWorking(false)
       setWasActionSuccessful('no')
     }
@@ -144,7 +139,6 @@ export const BuildAudienceDialog = ({
           crontab: cronTab,
           timezone: timeZone
         })
-      console.log('action response', response)
       setIsFormWorking(false)
       return response
     } catch (e) {
@@ -156,7 +150,6 @@ export const BuildAudienceDialog = ({
 
   // evaluates type of audience creation requested and calls appropriate API endpoint
   const submitForm = async () => {
-    console.log(JSON.stringify(localActionFormParams))
     setIsFormWorking(true)
     const currentTimestamp = new Date(Date.now()).toLocaleString();
     const name = `Sent from Extension - ${currentTimestamp}`;
@@ -210,7 +203,6 @@ export const BuildAudienceDialog = ({
         >
         <SpaceVertical>
           { actionFormFields.map(field => {
-            // console.log('FIELD', field)
             if (field.type === "oauth_link" || field.type === "oauth_link_google") {
               setNeedsLogin(true)
               return (
@@ -245,7 +237,6 @@ export const BuildAudienceDialog = ({
               const formOptions = field.options.map(option => {
                 return { value: option.name, label: option.label };
               });
-              // console.log('select', formOptions)
               return (
                 <FieldSelect
                   name={field.name}

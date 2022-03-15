@@ -15,24 +15,28 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
    * The model is connected to the project (see [here](https://docs.looker.com/data-modeling/getting-started/create-projects#configuring_a_model) on how to configure this connection).
    * The data within should be modeled as per normal practices and any ids should be at the customer grain.
 
-- A Looker explore that has the string `#audience-builder` in its description and that has dimensions or metrics meeting the following criteria:
-   * A single field, representing a unique ID, [tagged](https://docs.looker.com/reference/field-params/tags) with `google-ads-uid` in the lkml
+- A Looker explore that has been modified in the following ways: 
+
+   * A pre-determined string has been added to the description field, to indicate to the tool that the explore is compatible with the tool.  We recommend `#audience-builder`.  If you go with a different string, you will need to update the appropriate value in the [constants](src/constants.js) file.
    
-   * At least one field [tagged](https://docs.looker.com/reference/field-params/tags) in the lkml with any of the following identifiers, to indicate a field that contains personal information:
+   * Dimensions or metrics meeting the following criteria:
+      * A single field, representing a unique ID, [tagged](https://docs.looker.com/reference/field-params/tags) with a pre-determined value in the lkml. We recommend `google-ads-uid`.  Again, if you go with a different tag, you will need to update the appropriate value in the [constants](src/constants.js) file.
    
-      * `google-ads-idfa` (for a field containing an Apple IDFA value)
-      * `google-ads-aaid` (for a field containing an Google AAID value)
-      * `google-ads-email` (for a field containing an email address)
-      * `google-ads-phone` (for a field containing a phone number)
-      * `google-ads-first` (for a field containing a first name)
-      * `google-ads-last` (for a field containing a last name)
-      * `google-ads-street` (for a field containing a street address)
-      * `google-ads-city` (for a field containing a city name)
-      * `google-ads-state` (for a field containing a state name)
-      * `google-ads-country` (for a field containing a country name)
-      * `google-ads-postal` (for a field containing a postal or ZIP code)
+      * At least one field [tagged](https://docs.looker.com/reference/field-params/tags) with any of the following identifiers (these should not be customized), to indicate a field that contains personal information::
    
-     *Please note that more than one field can get each label.  The only requirement is that **one** field somewhere in the data must have one of these labels.  Additionally, the tool will validate your lkml for compliance and alert you if your explore doesn't have the proper tagging.*
+         * `google-ads-idfa` (for a field containing an Apple IDFA value)
+         * `google-ads-aaid` (for a field containing an Google AAID value)
+         * `google-ads-email` (for a field containing an email address)
+         * `google-ads-phone` (for a field containing a phone number)
+         * `google-ads-first` (for a field containing a first name)
+         * `google-ads-last` (for a field containing a last name)
+         * `google-ads-street` (for a field containing a street address)
+         * `google-ads-city` (for a field containing a city name)
+         * `google-ads-state` (for a field containing a state name)
+         * `google-ads-country` (for a field containing a country name)
+         * `google-ads-postal` (for a field containing a postal or ZIP code)
+   
+         *Please note that more than one field can get each label.  The only requirement is that **one field somewhere in the data must have one of these labels.**  Additionally, the tool will validate your lkml for compliance and alert you if your explore doesn't have the proper tagging.*
    
    * Any field tagged with one of the tags above **MUST** have the identifier (i.e., the string following the second hyphen in the tag) included as part of the label.  For example, a field that contains a city name must have the word "city" in the field label.  This is because the connection between Looker data and Google Ads is done via regular expressions (see [here](https://help.looker.com/hc/en-us/articles/4403987588371) for more details).  If the field in question does not already have the identifier in the label, you have two options:
    
@@ -47,13 +51,13 @@ The Looker Google Ads Customer Match Demo Application is a Looker in-platform ex
 
 In general, you'll want to work from left to right.
 
-1. Start by choosing a model and an explore.
+1. Start by choosing a model and an explore.  Only models and explores that are compatible with the tool will be presented as options.
 2. When an explore has been chosen, a list of available dimensions and metrics, organized by category, will appear in the left sidebar.  If your explore hasn't been properly configured according to the rules mentioned above, a message indicating the issue will appear in the sidebar instead.
-3. Clicking on a dimension or metric will add that dimension or metric to the center of the screen, where you can then set how you want to use its values as a filter.
+3. Clicking on a dimension or metric will add that dimension or metric to the center of the screen, where you can then set how you want to use its values as a filter.  You can remove filters by clicking on the dimension or metric again, or by clicking the "x" next to the filter in the center panel.
 4. When your filters are set, click the "Check Audience Size" button on the right to evaluate the size of an audience meeting the filter criteria.
-5. When you're satisfied with the size of the audience, begin the process of sending the audience to Google Ads by clicking either "One-Time Audience Build" or "Scheduled Audience Build."
+5. When you're satisfied with the size of the audience, begin the process of sending the audience to Google Ads by clicking either "Send Audience Now," for a one-time, immediate audience build, or by selecting a frequency, time of day, and time zone to enable the "Schedule Recurring Send" option.
 6. Each option will open a pop-up that requires you to login to Google Ads (if not logged in already) and then walks you through the audience creation/updating process, step by step.
-7. At the end, click the "Build" button and wait for an indication of the success or failure of your efforts.
+7. At the end, click the "Send Audience Now" or "Schedule Recurring Send" button in the pop-up window and wait for an indication of the success or failure of your efforts.
 
 
 =====================
@@ -106,4 +110,4 @@ The process above describes how to run the extension for development. Once you'r
 <br>Andrew Fechner
 <br>North American Lead, Solutions Engineering
 <br>Media.Monks
-<br>January, 2022
+<br>March, 2022

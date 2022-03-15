@@ -73,7 +73,6 @@ export const App = hot(() => {
   
   // retrives action integration form from Looker API
   const getForm = async () => {
-    console.log('getting form', globalActionFormParams)
     try {
       const form = await coreSDK.fetch_integration_form(constants.formDestination, globalActionFormParams)
       const formParams = form.value.fields.reduce(
@@ -101,7 +100,6 @@ export const App = hot(() => {
 
   // click handler for building audiences
   const handleBuildAudienceClick = async () => {
-    console.log(userTimeZone)
     setErrorGettingForm(false)
     setIsGettingForm(true)
     let doWeHaveTheForm = false
@@ -124,20 +122,10 @@ export const App = hot(() => {
       }
       if (frequency !== 'once') {
         const createdLook = await coreSDK.create_look(lookRequestBody)
-        console.log('look!', createdLook)
         setLookId(Number(createdLook.value.id))
       }
-
-      // if (!actionFormFields.length) {
-      //   console.log('waiting on them fields')
-      //   const form = await coreSDK.fetch_integration_form(constants.formDestination, {})
-      //   const initialField = form.value.fields[0]
-      //   if ((initialField.type === "oauth_link" || initialField.type === "oauth_link_google") && initialField.label !== "Log in") {
-      //     console.log('trouble afoot')
-      //     await getForm()
-      //   }
-      // }
       setBuildAudienceOpen(true)
+
     } catch (e) {
       console.log('Error with build audience form', e)
       setErrorGettingForm(true)
@@ -152,7 +140,7 @@ export const App = hot(() => {
     setExtensionSDK(tempExtensionSDK)
     setCoreSDK(tempSDK)
 
-    // models and explores pre-loaded into state
+    // models and explores with valid datasets pre-loaded into state
     let doWeHaveTheModels = false
     let result
     while (!doWeHaveTheModels) {
@@ -163,15 +151,16 @@ export const App = hot(() => {
     let tempExplores = {}
     result.value.forEach(model => {
       if (model.explores.length) {
-        tempModels.push({ value: model.name, label: model.label})
         tempExplores[model.name] = []
         model.explores.forEach(explore => {
+          // check explore description for text indicating explore's valid for the tool
           if (explore.description && explore.description.includes(constants.validExploreTag)) {
             tempExplores[model.name].push({ value: explore.name, label: explore.label})
           }
         })
-        for (let modelName in tempExplores) {
-          tempExplores[modelName] = tempExplores[modelName].sort(labelSorter)
+        if (tempExplores[model.name].length) {
+          tempModels.push({ value: model.name, label: model.label})
+          tempExplores[model.name] = tempExplores[model.name].sort(labelSorter)
         }
       }
     })
@@ -192,9 +181,11 @@ export const App = hot(() => {
   
   // steps taken when an explore is chosen
   useEffect(async () => {
+    // account for ephemeral issues with loading API
     if (!Object.getPrototypeOf(coreSDK).hasOwnProperty('lookml_model_explore')) {
       return
     }
+
     activeExplore !== '' && setIsGettingExplore(true)
     setExploreIsValid(null)
     setErrorGettingExplore(false)
@@ -291,14 +282,11 @@ export const App = hot(() => {
 
   // checks for presence of new form fields to disable spinner when new fields appear
   useEffect(() => {
-    // console.log('form fields length', actionFormFields.length)
-    // console.log('current number', currentNumberOfFields)
     if (!actionFormFields.length) {
       setCurrentNumberOfFields(1)
       return
     }
     if (actionFormFields.length !== currentNumberOfFields) {
-      // console.log('bingo, new field')
       setIsFormWorking(false)
       setCurrentNumberOfFields(actionFormFields.length)
     }
@@ -318,25 +306,13 @@ export const App = hot(() => {
     }
   }, [frequency, timeOfDay])
 
-  // Retrieves action form params and captures in state for audience build window
+  // Retrieves action form params and captures in state for audience build modal
   useEffect(() => {
-    console.log('form params', globalActionFormParams)
     Object.getPrototypeOf(coreSDK).hasOwnProperty('fetch_integration_form') && getForm()
   }, [globalActionFormParams])
 
-  // useEffect(() => console.log('uid state', uidField), [uidField])
-  // useEffect(() => console.log('reqd state', requiredFields), [requiredFields])
-  // useEffect(() => console.log('valid', exploreIsValid), [exploreIsValid])
-  // useEffect(() => console.log('query', query), [query])
-  // useEffect(() => console.log('init form params', initActionFormParams), [initActionFormParams])
-  // useEffect(() => console.log('action form fields', actionFormFields), [actionFormFields])
-  // useEffect(() => console.log('frequency', frequency), [frequency])
-  // useEffect(() => console.log('time of day', timeOfDay), [timeOfDay])
-  // useEffect(() => console.log('PARAMS', globalActionFormParams), [globalActionFormParams])
-  // useEffect(() => console.log('time zones', timeZones), [timeZones])
-  useEffect(() => console.log('user time zone', userTimeZone), [userTimeZone])
-  
 
+  // App Component HTML
   return (
     <ComponentsProvider theme={GoogleBlueTheme}>
       <Space height="100%" align="start">
@@ -366,7 +342,6 @@ export const App = hot(() => {
                       No fields in your model were correctly tagged and named for the Google Ads Customer Match action.
                     </MessageBar>
               : <Sidebar
-                  //filters={mockData.items}
                   filters={filters.items}
                   activeFilters={activeFilters}
                   setActiveFilters={setActiveFilters}
