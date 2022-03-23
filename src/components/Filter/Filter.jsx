@@ -50,10 +50,9 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => 
     setActiveFilters(newFilters)
   }
 
-  const removeFilter = (filter) => {
+  const removeFilter = () => {
     activeFilters.splice(
-      activeFilters.findIndex((item) => item.id === filter.id),
-      1
+      activeFilters.findIndex(item => item.id === filter.id), 1
     )
     setActiveFilters([...activeFilters])
   }
@@ -128,3 +127,11 @@ FilterItem.propTypes = {
   setActiveFilters: PropTypes.func,
   sdk: PropTypes.object
 }
+
+/*
+onClick={() => {
+            activeFilters.splice(
+              activeFilters.findIndex(item => item.id === filter.id), 1
+            )
+            setActiveFilters([...activeFilters])
+          }}*/
