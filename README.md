@@ -104,7 +104,7 @@ The process above describes how to run the extension for development. Once you'r
 
 1. In the extension project directory build the extension by running `yarn build`.
 2. Drag and drop the generated `dist/bundle.js` file into the Looker project interface.
-3. Modify the `manifest.lkml` to use `file: "bundle.js` instead of `url: "http://localhost:8080/bundle.js`.
+3. Modify the `manifest.lkml` to use `file: "bundle.js"` instead of `url: "http://localhost:8080/bundle.js"`.
 
 
 <br>Andrew Fechner
