@@ -61,7 +61,7 @@ export const AudienceSize = ({ activeFilters, uidField, requiredFields, setQuery
 
     // retrieves SQL version of filters from Looker API, comments out LIMIT clause, and wraps it for COUNT DISTINCT
     const result = await coreSDK.run_inline_query({ result_format: 'sql', body })
-    const rawSql = await result.value.text()
+    const rawSql = await result.value
     const sql = sqlAssembler(rawSql.replaceAll('LIMIT','--LIMIT'))
     let queryResult
 
