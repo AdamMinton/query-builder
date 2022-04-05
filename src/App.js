@@ -201,18 +201,27 @@ export const App = hot(() => {
     }
     let isRequiredTagPresent = false
     const fields = result.value.fields
+    console.log(result.value)
     let tempObj = {}
     let tempRequiredFields = {}
     let tempUidField = []
 
     // explore scopes turned into top level categories for filter menu
-    result.value.scopes.forEach(scope => {
-      tempObj[scope] = { 
-        id: scope,
-        label: '',
-        items: []
+    // result.value.scopes.forEach(scope => {
+    //   tempObj[scope] = { 
+    //     id: scope,
+    //     label: '',
+    //     items: []
+    //   }
+    // })
+
+    class topLevelDirectory {
+      constructor(label) {
+        this.id = label;
+        this.label = label;
+        this.items = []
       }
-    })
+    }
 
     // dimensions and measures sorted by scope into filter menu
     for (let category of ['dimensions','measures']) {
@@ -220,8 +229,10 @@ export const App = hot(() => {
 
         // filter out unapproved data types and duplicate fields
         if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag)) {
-          tempObj[field.scope].label = field.view_label
-          tempObj[field.scope].items.push({
+          tempObj[field.view_label] = tempObj[field.view_label] || new topLevelDirectory(field.view_label)
+          // tempObj[field.scope].label = field.view_label
+          tempObj[field.view_label].items.push({
+          // tempObj[field.scope].items.push({
             id: field.name,
             label: field.label_short,
             type: constants.typeMap[field.type],
@@ -233,6 +244,12 @@ export const App = hot(() => {
               suggestable: field.suggestable
             }
           })
+          if (field.view_label === 'Client' && field.label_short === 'Location') {
+            console.log(field.name)
+          }
+          if (field.view_label === 'Credit Card' && (field.label_short.includes("Cancellation") || field.label_short.includes("Creation"))) {
+            console.log(field.name)
+          }
 
           // check to capture the presence of a designated UID field
           for (let i=0; i<field.tags.length; i++) {
@@ -258,9 +275,14 @@ export const App = hot(() => {
       })
     }
     let filterObj = { items: [] }
-    for (let scope in tempObj) {
-      if (tempObj[scope].items.length) {
-        filterObj.items.push(tempObj[scope])
+    // for (let scope in tempObj) {
+    //   if (tempObj[scope].items.length) {
+    //     filterObj.items.push(tempObj[scope])
+    //   }
+    // }
+    for (let label in tempObj) {
+      if (tempObj[label].items.length) {
+        filterObj.items.push(tempObj[label])
       }
     }
     setIsGettingExplore(false)
