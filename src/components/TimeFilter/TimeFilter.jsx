@@ -28,7 +28,7 @@ import { Filter } from '@looker/filter-components'
 
 export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
   const [expression, setExpression] = useState('')
-  const [dateOption, setDateOption] = useState({})
+  const [dateOption, setDateOption] = useState({type: 'relative_timeframes'})
 
   const today = new Date()
   let lastWeek = new Date(today)
@@ -72,7 +72,8 @@ export const TimeFilter = ({ activeFilters, filter, setActiveFilters }) => {
     <div>
       <FieldSelect
         name="Date Options"
-        placeholder="Choose a Date Input"
+        placeholder="Choose a Date Filter Type"
+        defaultValue='relative_timeframes'
         options={dateOptions}
         onChange={(event) => { setDateOption({ type: event }) }}
       />
