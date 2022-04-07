@@ -57,7 +57,7 @@ export const App = hot(() => {
   const [initActionFormParams, setInitActionFormParams] = useState({});
   const [globalActionFormParams, setGlobalActionFormParams] = useState({});
   const [isGettingForm, setIsGettingForm] = useState(false)
-  const [lookId, setLookId] = useState(null)
+  const [look, setLook] = useState(null)
   const [extensionSDK, setExtensionSDK] = useState({})
   const [isFormWorking, setIsFormWorking] = useState(false)
   const [currentNumberOfFields, setCurrentNumberOfFields] = useState(1)
@@ -122,7 +122,7 @@ export const App = hot(() => {
       }
       if (frequency !== 'once') {
         const createdLook = await coreSDK.create_look(lookRequestBody)
-        setLookId(Number(createdLook.value.id))
+        setLook(createdLook.value)
       }
       setBuildAudienceOpen(true)
 
@@ -207,14 +207,6 @@ export const App = hot(() => {
     let tempUidField = []
 
     // explore scopes turned into top level categories for filter menu
-    // result.value.scopes.forEach(scope => {
-    //   tempObj[scope] = { 
-    //     id: scope,
-    //     label: '',
-    //     items: []
-    //   }
-    // })
-
     class topLevelDirectory {
       constructor(label) {
         this.id = label;
@@ -228,11 +220,18 @@ export const App = hot(() => {
       fields[category].forEach(field => {
 
         // filter out unapproved data types and duplicate fields
-        if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag)) {
+        if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag) && !field.hidden) {
           tempObj[field.view_label] = tempObj[field.view_label] || new topLevelDirectory(field.view_label)
-          // tempObj[field.scope].label = field.view_label
+          let displayName
+          // if (field.dimension_group !== null) {
+          //   // parse field.name to remove view label, replace '_' with ' ' and capitalize (e.g. 'loan.grant_date' --> 'Grant Date')
+          //   if (field.name !== field.label_short) {
+          //     displayName = `${field.field_group_label} ${field.field_group_variant}`
+          //   }
+          // } else {
+          //   displayName = field.label_short
+          // }
           tempObj[field.view_label].items.push({
-          // tempObj[field.scope].items.push({
             id: field.name,
             label: field.label_short,
             type: constants.typeMap[field.type],
@@ -244,9 +243,6 @@ export const App = hot(() => {
               suggestable: field.suggestable
             }
           })
-          if (field.view_label === 'Client' && field.label_short === 'Location') {
-            console.log(field.name)
-          }
           if (field.view_label === 'Credit Card' && (field.label_short.includes("Cancellation") || field.label_short.includes("Creation"))) {
             console.log(field.name)
           }
@@ -469,7 +465,7 @@ export const App = hot(() => {
         setGlobalActionFormParams={setGlobalActionFormParams}
         coreSDK={coreSDK}
         queryId={query.id}
-        lookId={lookId}
+        look={look}
         extensionSDK={extensionSDK}
         getForm={getForm}
         isFormWorking={isFormWorking}

@@ -47,7 +47,7 @@ export const BuildAudienceDialog = ({
   setGlobalActionFormParams,
   coreSDK,
   queryId,
-  lookId,
+  look,
   extensionSDK,
   getForm,
   isFormWorking,
@@ -119,12 +119,22 @@ export const BuildAudienceDialog = ({
     }
   };
 
+  // Helper function to create filter_string property of scheduled audience build
+  const createFiltersString = (filters) => {
+    let filtersString = '?'
+    for (let [key, value] of Object.entries(filters)) {
+      filtersString = filtersString.concat(encodeURIComponent(key),"=",encodeURIComponent(value),'&')
+    }
+    return filtersString.slice(0,-1)
+  }
+
   // API call to create a scheduled audience build
   const scheduledBuild = async (name, destination) => {
     try {
       const response = await coreSDK.create_scheduled_plan({
           name: name,
-          look_id: lookId,
+          look_id: Number(look.id),
+          filters_string: createFiltersString(look.query.filters),
           scheduled_plan_destination: [
             {
               type: destination,
@@ -272,8 +282,8 @@ BuildAudienceDialog.propTypes = {
   setActionFormFields: PropTypes.func,
   setGlobalActionFormParams: PropTypes.func,
   coreSDK: PropTypes.object,
-  queryId: PropTypes.number,
-  lookId: PropTypes.number,
+  queryId: PropTypes.string,
+  look: PropTypes.object,
   extensionSDK: PropTypes.object,
   getForm: PropTypes.func,
   isFormWorking: PropTypes.bool,
