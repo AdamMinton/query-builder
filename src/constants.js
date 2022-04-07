@@ -47,6 +47,25 @@ module.exports = {
     sum: 'number'
   },
 
+  fieldsList: () => {
+    const properties = [
+      'dimension_group',  
+      'field_group_label',
+      'field_group_variant',
+      'hidden',
+      'label_short',
+      'name',
+      'suggest_dimension',
+      'suggest_explore',
+      'suggestable',
+      'tags',
+      'type',
+      'view',
+      'view_label'
+    ].join(',')
+    return `fields(dimensions(${properties}),measures(${properties}))`
+  },
+
   // Looker API destination for Customer Match action
   formDestination: '1::google_ads_customer_match'
 }

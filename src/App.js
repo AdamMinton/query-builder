@@ -193,7 +193,7 @@ export const App = hot(() => {
 
     // explore details retrieved via API
     try {
-      result = await coreSDK.lookml_model_explore(activeModel,activeExplore)
+      result = await coreSDK.lookml_model_explore(activeModel,activeExplore,constants.fieldsList())
     } catch (e) {
       console.log('Error getting explore', e)
       setErrorGettingExplore(true)
