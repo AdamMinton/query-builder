@@ -1,9 +1,9 @@
 project_name: "looker-demo-project"
 
-application: customer-match-tool {
-  label: "Customer Match Tool"
-  file: "bundle-0411.js"
-  # url: "http://localhost:8080/bundle.js"
+application: looker-demo-project {
+  label: "Looker demo"
+  # file: "bundle.js"
+  url: "http://localhost:8080/bundle.js"
   entitlements: {
     core_api_methods: [
       "me",

@@ -6,3 +6,7 @@ dist
 .env
 .eslintcache
 .idea
+scratchpad.js
+explore.json
+bundle.js
+.DS_Store

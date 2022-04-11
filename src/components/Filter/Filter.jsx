@@ -21,13 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { Box2 } from '@looker/components'
-import { Filter } from '@looker/filter-components'
+import { Box2, IconButton } from '@looker/components'
+import { Filter, useSuggestable } from '@looker/filter-components'
+import { TimeFilter } from '../TimeFilter/TimeFilter.jsx'
 import { StyledItemInner, StyledLabel } from './Filter.styles'
+import { Close } from '@styled-icons/material/Close'
 
-export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
+export const FilterItem = ({ activeFilters, filter, setActiveFilters, sdk }) => {
+  
   const [expression, setExpression] = useState('')
 
   const handleChange = (value) => {
@@ -47,9 +50,26 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
     setActiveFilters(newFilters)
   }
 
+  const removeFilter = () => {
+    activeFilters.splice(
+      activeFilters.findIndex(item => item.id === filter.id), 1
+    )
+    setActiveFilters([...activeFilters])
+  }
+  
+  const { errorMessage, suggestableProps } = useSuggestable({
+    filter,
+    sdk,
+  })
+
   return (
     <Box2 m="u3">
       <StyledItemInner>
+        <IconButton
+          icon={<Close />}
+          label="Remove Filter"
+          onClick={removeFilter}
+        />
         <StyledLabel fontSize="small">{filter.label}</StyledLabel>
 
         {filter.type === 'string' && (
@@ -59,6 +79,7 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
             expressionType="string"
             expression={expression}
             onChange={handleChange}
+            {...suggestableProps}
           />
         )}
         {filter.type === 'number' && (
@@ -70,12 +91,11 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
             onChange={handleChange}
           />
         )}
-        {filter.type === 'date_time' && (
-          <Filter
-            name={filter.label}
-            expressionType="date_time"
-            expression={expression}
-            onChange={handleChange}
+        {filter.type === 'date' && (
+          <TimeFilter
+            activeFilters={activeFilters}
+            filter={filter}
+            setActiveFilters={setActiveFilters}
           />
         )}
         {filter.type === 'location' && (
@@ -84,6 +104,16 @@ export const FilterItem = ({ activeFilters, filter, setActiveFilters }) => {
             expressionType="location"
             expression={expression}
             onChange={handleChange}
+          />
+        )}
+        {filter.type === 'yesno' && (
+          <Filter
+            name={filter.label}
+            expressionType="string"
+            expression={expression}
+            onChange={handleChange}
+            config={{ type: 'button_toggles' }}
+            suggestions={['Yes','No']}
           />
         )}
       </StyledItemInner>
@@ -95,4 +125,13 @@ FilterItem.propTypes = {
   activeFilters: PropTypes.array,
   filter: PropTypes.object,
   setActiveFilters: PropTypes.func,
+  sdk: PropTypes.object
 }
+
+/*
+onClick={() => {
+            activeFilters.splice(
+              activeFilters.findIndex(item => item.id === filter.id), 1
+            )
+            setActiveFilters([...activeFilters])
+          }}*/

@@ -22,7 +22,21 @@
  * THE SOFTWARE.
  */
 import styled from 'styled-components'
-import { SpaceVertical } from '@looker/components'
+import { theme, SpaceVertical, Button } from '@looker/components'
+
+export const GoogleBlueTheme = {
+  ...theme,
+  colors: {
+    ...theme.colors,
+    key: '#1A73E8',
+    keySubtle: '#E8F1FC',
+    keyAccent: '#DAE8FB',
+    keyFocus: '#75ABF1',
+    keyInteractive: '#2D7EEA',
+    keyPressed: '#1463CA',
+    keyBorder: '#2D7EEA'      
+  }
+}
 
 export const StyledSidebar = styled(SpaceVertical)`
   border-right: 1px solid #e4e5e6;
