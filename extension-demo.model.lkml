@@ -1,1 +1,1 @@
-connection: "looker-private-demo"
+connection: "retail_banking"
