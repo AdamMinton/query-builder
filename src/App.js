@@ -219,21 +219,18 @@ export const App = hot(() => {
     for (let category of ['dimensions','measures']) {
       fields[category].forEach(field => {
 
-        // filter out unapproved data types and duplicate fields
+        // filter out unapproved data types and duplicate fields, build appropriate label
         if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag) && !field.hidden) {
           tempObj[field.view_label] = tempObj[field.view_label] || new topLevelDirectory(field.view_label)
           let displayName
-          // if (field.dimension_group !== null) {
-          //   // parse field.name to remove view label, replace '_' with ' ' and capitalize (e.g. 'loan.grant_date' --> 'Grant Date')
-          //   if (field.name !== field.label_short) {
-          //     displayName = `${field.field_group_label} ${field.field_group_variant}`
-          //   }
-          // } else {
-          //   displayName = field.label_short
-          // }
+          if (field.dimension_group !== null) {
+            displayName = field.field_group_label.replace('Date','').concat(` ${field.field_group_variant}`)
+          } else {
+            displayName = field.label_short
+          }
           tempObj[field.view_label].items.push({
             id: field.name,
-            label: field.label_short,
+            label: displayName,
             type: constants.typeMap[field.type],
             model: activeModel,
             'field': {
@@ -243,9 +240,6 @@ export const App = hot(() => {
               suggestable: field.suggestable
             }
           })
-          if (field.view_label === 'Credit Card' && (field.label_short.includes("Cancellation") || field.label_short.includes("Creation"))) {
-            console.log(field.name)
-          }
 
           // check to capture the presence of a designated UID field
           for (let i=0; i<field.tags.length; i++) {
