@@ -223,7 +223,7 @@ export const App = hot(() => {
         if (constants.typeMap.hasOwnProperty(field.type) && !field.tags.includes(constants.duplicateTag) && !field.hidden) {
           tempObj[field.view_label] = tempObj[field.view_label] || new topLevelDirectory(field.view_label)
           let displayName
-          if (field.dimension_group !== null) {
+          if (field.dimension_group) {
             displayName = field.field_group_label.replace('Date','').concat(` ${field.field_group_variant}`)
           } else {
             displayName = field.label_short
